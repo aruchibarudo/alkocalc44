@@ -1,7 +1,7 @@
 package ru.yamalinform.alkocalc44;
 
 import android.content.Intent;
-import android.net.Uri;
+//import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -16,9 +16,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
+//import com.google.android.gms.appindexing.Action;
+//import com.google.android.gms.appindexing.AppIndex;
+//import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
-    private GoogleApiClient client;
+    //private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         });
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+        //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
+        /*client.connect();
         Action viewAction = Action.newAction(
                 Action.TYPE_VIEW, // TODO: choose an action type.
                 "Main Page", // TODO: Define a title for the content shown.
@@ -211,13 +211,13 @@ public class MainActivity extends AppCompatActivity {
                 // TODO: Make sure this auto-generated app URL is correct.
                 Uri.parse("android-app://ru.yamalinform.alkocalc44/http/host/path")
         );
-        AppIndex.AppIndexApi.start(client, viewAction);
+        AppIndex.AppIndexApi.start(client, viewAction);*/
     }
 
     @Override
     public void onStop() {
         super.onStop();
-
+/*
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         Action viewAction = Action.newAction(
@@ -231,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
                 Uri.parse("android-app://ru.yamalinform.alkocalc44/http/host/path")
         );
         AppIndex.AppIndexApi.end(client, viewAction);
-        client.disconnect();
+        client.disconnect();*/
     }
 
     @Override
