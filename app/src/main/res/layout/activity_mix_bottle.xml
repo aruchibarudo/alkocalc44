@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="ru.yamalinform.alkocalc44.mixBottle">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/result1"
+        android:id="@+id/tvRes1"
+        android:layout_below="@+id/etGrad1"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="32dp" />
+
+    <TextView
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+
+        android:text="0"
+        android:id="@+id/tvResVol1"
+        android:textAlignment="textEnd"
+        android:layout_marginRight="5dp"
+        android:layout_alignTop="@+id/tvRes1"
+        android:layout_toEndOf="@+id/tvRes1" />
+
+    <EditText
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:ems="10"
+        android:id="@+id/etGrad1"
+        android:text="0"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/tvGr1" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/Gr1"
+        android:id="@+id/tvGr1"
+        android:layout_alignBaseline="@+id/etGrad1"
+        android:layout_alignBottom="@+id/etGrad1"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/Gr2"
+        android:id="@+id/tvGr2"
+        android:layout_alignBaseline="@+id/etGrad1"
+        android:layout_alignBottom="@+id/etGrad1"
+        android:layout_toEndOf="@+id/etGrad1" />
+
+    <TextView
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:id="@+id/tvResVol2"
+        android:textAlignment="textEnd"
+        android:layout_marginRight="5dp"
+        android:layout_alignTop="@+id/tvRes2"
+        android:layout_toEndOf="@+id/tvRes2" />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar"
+        android:indeterminate="false"
+        android:max="100"
+        style="@android:style/Widget.Holo.SeekBar"
+        android:layout_below="@+id/tvResGrad"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="90dp" />
+
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/etMaxVolume"
+        android:text="3000"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/tvVolume"
+        android:inputType="numberDecimal" />
+
+
+    <EditText
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:ems="10"
+        android:id="@+id/etGrad2"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/tvGr2"
+        android:text="0" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/result2"
+        android:id="@+id/tvRes2"
+        android:layout_alignTop="@+id/tvResVol1"
+        android:layout_toEndOf="@+id/tvResVol1" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/MaxVolume"
+        android:id="@+id/tvVolume"
+        android:layout_alignBaseline="@+id/etGrad2"
+        android:layout_alignBottom="@+id/etGrad2"
+        android:layout_toEndOf="@+id/etGrad2" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0.0º"
+        android:id="@+id/tvResGrad"
+        android:textStyle="bold"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:textSize="50dp" />
+</RelativeLayout>

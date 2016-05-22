@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="ru.yamalinform.alkocalc44.reportBottle">
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="22"
+        app:showAsAction="never" />
+</menu>
