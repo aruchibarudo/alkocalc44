@@ -14,9 +14,9 @@
         android:layout_height="wrap_content"
         android:text="@string/result1"
         android:id="@+id/tvRes1"
+        android:layout_marginTop="41dp"
         android:layout_below="@+id/etGrad1"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="32dp" />
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="50dp"
@@ -26,7 +26,8 @@
         android:id="@+id/tvResVol1"
         android:textAlignment="textEnd"
         android:layout_marginRight="5dp"
-        android:layout_alignTop="@+id/tvRes1"
+        android:textAppearance="@android:style/TextAppearance.Large"
+        android:layout_alignBottom="@+id/tvRes1"
         android:layout_toEndOf="@+id/tvRes1" />
 
     <EditText
@@ -36,8 +37,11 @@
         android:ems="10"
         android:id="@+id/etGrad1"
         android:text="0"
-        android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/tvGr1" />
+        android:layout_below="@+id/tvVolume"
+        android:layout_toEndOf="@+id/tvGr1"
+        android:textAlignment="textEnd"
+        android:singleLine="true"
+        android:hint="@string/hGrad1" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -53,9 +57,8 @@
         android:layout_height="wrap_content"
         android:text="@string/Gr2"
         android:id="@+id/tvGr2"
-        android:layout_alignBaseline="@+id/etGrad1"
-        android:layout_alignBottom="@+id/etGrad1"
-        android:layout_toEndOf="@+id/etGrad1" />
+        android:layout_alignTop="@+id/tvGr1"
+        android:layout_toEndOf="@+id/tvB1id" />
 
     <TextView
         android:layout_width="50dp"
@@ -64,7 +67,8 @@
         android:id="@+id/tvResVol2"
         android:textAlignment="textEnd"
         android:layout_marginRight="5dp"
-        android:layout_alignTop="@+id/tvRes2"
+        android:textAppearance="@android:style/TextAppearance.Large"
+        android:layout_alignBottom="@+id/tvRes2"
         android:layout_toEndOf="@+id/tvRes2" />
 
     <SeekBar
@@ -84,9 +88,9 @@
         android:layout_height="wrap_content"
         android:id="@+id/etMaxVolume"
         android:text="3000"
+        android:inputType="numberDecimal"
         android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/tvVolume"
-        android:inputType="numberDecimal" />
+        android:layout_alignEnd="@+id/seekBar" />
 
 
     <EditText
@@ -95,9 +99,12 @@
         android:inputType="numberDecimal"
         android:ems="10"
         android:id="@+id/etGrad2"
-        android:layout_alignParentTop="true"
+        android:text="0"
+        android:layout_below="@+id/tvVolume"
         android:layout_toEndOf="@+id/tvGr2"
-        android:text="0" />
+        android:hint="градус"
+        android:singleLine="true"
+        android:textAlignment="textEnd" />
 
 
     <TextView
@@ -105,7 +112,7 @@
         android:layout_height="wrap_content"
         android:text="@string/result2"
         android:id="@+id/tvRes2"
-        android:layout_alignTop="@+id/tvResVol1"
+        android:layout_alignBottom="@+id/tvResVol1"
         android:layout_toEndOf="@+id/tvResVol1" />
 
 
@@ -114,9 +121,9 @@
         android:layout_height="wrap_content"
         android:text="@string/MaxVolume"
         android:id="@+id/tvVolume"
-        android:layout_alignBaseline="@+id/etGrad2"
-        android:layout_alignBottom="@+id/etGrad2"
-        android:layout_toEndOf="@+id/etGrad2" />
+        android:layout_alignBaseline="@+id/etMaxVolume"
+        android:layout_alignBottom="@+id/etMaxVolume"
+        android:layout_toStartOf="@+id/etMaxVolume" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -127,4 +134,34 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:textSize="50dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="sId1"
+        android:id="@+id/tvB1id"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/tvRes2" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="sId2"
+        android:id="@+id/tvB2id"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/tvGr2"
+        android:layout_alignEnd="@+id/tvResVol2" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btnText"
+        android:id="@+id/btnMixOK"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="18dp" />
+
 </RelativeLayout>

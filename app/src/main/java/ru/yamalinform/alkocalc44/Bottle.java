@@ -67,9 +67,7 @@ public class Bottle {
         return type;
     }
 
-    public String getAlkach() {
-        return alkach;
-    }
+    public String getAlkach() { return alkach; }
 
     public int getAlco() { return alco; }
 
@@ -115,14 +113,12 @@ public class Bottle {
     }
 
     public void setSource(String source) {
-        if(source != "") {
+        if(!source.equals("")) {
             try {
                 this.source = new JSONArray(source);
             } catch (JSONException e) {
-                Log.d("BOTTLE", e.getMessage());
+                Log.d("BOTTLE: " + source, e.getMessage());
                 e.printStackTrace();
-            } finally {
-                this.source = new JSONArray();
             }
         }
 
@@ -141,16 +137,14 @@ public class Bottle {
     public JSONArray makeCoupage(ArrayList<Bottle> bottles) {
         String res = "";
         JSONArray jsonA = null;
+
         try {
-            //JSONObject jsonO = new JSONObject("{coupage: [id:0,volume:0]}");
             jsonA = new JSONArray();
             for (int i = 0; i < bottles.size(); i++) {
-                //res += "{id:" + String.valueOf(bottles.get(i).getId()) + ",volume:" + String.valueOf(bottles.get(i).getVolume())+"}";
-                jsonA.put(i,new JSONObject("{id:" + String.valueOf(bottles.get(i).getId()) + ",volume:" + String.valueOf(bottles.get(i).getVolume())+"}"));
-                //jsonA.getJSONObject(i).put("id", bottles.get(i).getId());
-                //jsonA.getJSONObject(i).put("volume", bottles.get(i).getVolume());
-                this.source = jsonA;
+                jsonA.put(i,new JSONObject("{id:" + String.valueOf(bottles.get(i).getsId()) +
+                        ",volume:" + String.valueOf(bottles.get(i).getVolume())+"}"));
             }
+            this.source = jsonA;
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -159,11 +153,11 @@ public class Bottle {
     }
 
     public JSONArray makeCoupage(Bottle b1, Bottle b2) {
-        //JSONObject res = new JSONObject();
         JSONArray res = null;
+
         try {
-            res = new JSONArray("[{id:" + String.valueOf(b1.getId()) + ",volume:" + String.valueOf(b1.getVolume())+"}," +
-                    "{id:" + String.valueOf(b2.getId()) + ",volume:" + String.valueOf(b2.getVolume())+"}]");
+            res = new JSONArray("[{id:" + String.valueOf(b1.getsId()) + ",volume:" + String.valueOf(b1.getVolume())+"}," +
+                    "{id:" + String.valueOf(b2.getsId()) + ",volume:" + String.valueOf(b2.getVolume())+"}]");
             this.source = res;
         } catch (JSONException e) {
             e.printStackTrace();

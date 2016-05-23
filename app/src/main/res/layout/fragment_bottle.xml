@@ -16,6 +16,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="false"
         android:layout_alignParentRight="true"
+        android:contentDescription="картинка"
         android:src="@drawable/vino" />
 
     <TextView
@@ -34,7 +35,6 @@
         android:inputType="numberDecimal"
         android:layout_alignParentTop="true"
         android:layout_alignStart="@+id/peregon"
-        android:editable="true"
         android:enabled="false" />
 
     <TextView
@@ -54,7 +54,6 @@
         android:id="@+id/alco"
         android:layout_below="@+id/sId"
         android:layout_toEndOf="@+id/textView2"
-        android:editable="false"
         android:enabled="false" />
 
     <TextView
@@ -81,25 +80,6 @@
         android:layout_height="wrap_content"
         android:text="@string/volume"
         android:id="@+id/textView3"
-        android:layout_alignBaseline="@+id/sugar"
-        android:layout_alignBottom="@+id/sugar"
-        android:layout_alignParentStart="true" />
-
-    <EditText
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:inputType="numberDecimal"
-        android:ems="10"
-        android:id="@+id/volume"
-        android:layout_below="@+id/sugar"
-        android:layout_toEndOf="@+id/textView2"
-        android:enabled="false" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/sugar"
-        android:id="@+id/textView4"
         android:layout_alignBaseline="@+id/volume"
         android:layout_alignBottom="@+id/volume"
         android:layout_alignParentStart="true" />
@@ -109,8 +89,27 @@
         android:layout_height="wrap_content"
         android:inputType="numberDecimal"
         android:ems="10"
-        android:id="@+id/sugar"
+        android:id="@+id/volume"
         android:layout_below="@+id/peregon"
+        android:layout_toEndOf="@+id/textView2"
+        android:enabled="false"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sugar"
+        android:id="@+id/textView4"
+        android:layout_alignBaseline="@+id/sugar"
+        android:layout_alignBottom="@+id/sugar"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:ems="10"
+        android:id="@+id/sugar"
+        android:layout_below="@+id/volume"
         android:layout_alignStart="@+id/peregon"
         android:enabled="false"/>
 
@@ -129,7 +128,7 @@
         android:inputType="date"
         android:ems="10"
         android:id="@+id/date"
-        android:layout_below="@+id/volume"
+        android:layout_below="@+id/sugar"
         android:layout_toEndOf="@+id/textView2"
         android:autoText="false"
         android:enabled="false"/>

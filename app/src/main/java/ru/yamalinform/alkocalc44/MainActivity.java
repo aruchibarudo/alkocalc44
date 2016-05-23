@@ -238,6 +238,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.d("MAIN", "onResume()");
+        lvBottles.clearChoices();
         getBottles(filter);
     }
 }

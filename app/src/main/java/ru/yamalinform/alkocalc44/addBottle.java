@@ -34,6 +34,16 @@ public class addBottle extends AppCompatActivity {
         final Button btnOk = (Button) findViewById(R.id.btnOk);
         final CheckBox cbWrite = (CheckBox) findViewById(R.id.cbWrite);
         final Date date;
+        final String source;
+
+
+        if(getIntent().getExtras() != null && getIntent().getExtras().size() == 3) {
+            etAlco.setText(getIntent().getExtras().getString("alco"));
+            etVolume.setText(getIntent().getExtras().getString("volume"));
+            source = getIntent().getExtras().getString("source");
+        }else {
+            source = "[{id:0,volume:0}]";
+        }
 
         btnOk.setOnClickListener(new Button.OnClickListener() {
 
@@ -65,7 +75,7 @@ public class addBottle extends AppCompatActivity {
                         Log.d("MAIN", e.getMessage());
                     }
                     bottle.setSugar(Integer.parseInt(etSugar.getText().toString()));
-                    bottle.setSource("[{id:0,volume:0}]");
+                    bottle.setSource(source);
 
                     alkosql db = new alkosql(getApplicationContext());
                     //ArrayList<Bottle> bb = null;

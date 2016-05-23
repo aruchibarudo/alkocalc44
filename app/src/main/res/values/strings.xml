@@ -1,5 +1,5 @@
 <resources>
-    <string name="title_activity_main">Бухло кальк.exe</string>
+    <string name="title_activity_main">Бухлокальк</string>
     <string name="app_name">alkocalc44</string>
     <string name="Gr1">Гр 1:</string>
     <string name="Gr2">Гр 2:</string>
@@ -115,4 +115,6 @@
     <string name="peregon">кратность</string>
     <string name="volume">объем</string>
     <string name="sugar">сахар</string>
+    <string name="hGrad1">градус</string>
+    <string name="fock">FOCK</string>
 </resources>
