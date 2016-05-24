@@ -26,6 +26,9 @@ public class Bottle {
     private int sugar;
     private int peregon;
     private Date date, timestamp;
+    private String description;
+
+
 
     public Bottle(){
         timestamp = new Date(Calendar.getInstance().getTime().getTime());
@@ -49,6 +52,14 @@ public class Bottle {
     @Override
     public String toString() {
         return "Bottle [" + sId + ", " + volume + ", " + type + ", " + source.toString() + "]";
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public int getId() {

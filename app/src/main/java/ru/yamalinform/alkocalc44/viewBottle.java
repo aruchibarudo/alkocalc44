@@ -125,6 +125,7 @@ public class viewBottle extends AppCompatActivity {
         private EditText etPeregon;
         private EditText etSugar;
         private EditText etDate;
+        private EditText etDescr;
 
         public PlaceholderFragment() {
         }
@@ -159,14 +160,16 @@ public class viewBottle extends AppCompatActivity {
             etPeregon = (EditText) rootView.findViewById(R.id.peregon);
             etSugar = (EditText) rootView.findViewById(R.id.sugar);
             etDate = (EditText) rootView.findViewById(R.id.date);
+            etDescr = (EditText) rootView.findViewById(R.id.etDescr);
 
             etSId.setText(bottle.getsId());
             etAlco.setText(String.valueOf(bottle.getAlco()));
             etVolume.setText(String.valueOf(bottle.getVolume()));
             etPeregon.setText(String.valueOf(bottle.getPeregon()));
             etSugar.setText(String.valueOf(bottle.getSugar()));
-            SimpleDateFormat sdf = new SimpleDateFormat("d/MM/y", Locale.ENGLISH);
+            SimpleDateFormat sdf = new SimpleDateFormat("d.MM.yy", Locale.getDefault());
             etDate.setText(sdf.format(bottle.getDate()));
+            etDescr.setText(bottle.getDescription());
 
             return rootView;
         }

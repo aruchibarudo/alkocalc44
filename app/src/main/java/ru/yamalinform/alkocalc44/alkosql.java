@@ -20,7 +20,7 @@ public class alkosql extends SQLiteOpenHelper {
 
 
     // Database Version
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 5;
     // Database Name
     private static final String DATABASE_NAME = "alkodb";
     private String CREATE_BOTTLES_TABLE;
@@ -45,6 +45,7 @@ public class alkosql extends SQLiteOpenHelper {
                 "sugar,"+
                 "peregon,"+
                 "date,"+
+                "description,"+
                 "timestamp"+
                 ")";
 
@@ -67,10 +68,32 @@ public class alkosql extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older books table if existed
         //db.execSQL("DROP TABLE IF EXISTS bottles");
-        if(newVersion == 3) {
-            db.execSQL("DROP TABLE IF EXISTS reports");
+
+        switch (newVersion) {
+            case 3:
+                db.execSQL("DROP TABLE IF EXISTS reports");
+                Log.d("_SQL", "Upgrade to 3");
+                break;
+            case 4:
+                db.beginTransaction();
+                db.execSQL("ALTER TABLE bottles ADD description");
+                db.setTransactionSuccessful();
+                db.endTransaction();
+                Log.d("_SQL", "Upgrade to 4");
+                break;
+            case 5:
+                db.beginTransaction();
+                if(oldVersion < 4) {
+                    db.execSQL("ALTER TABLE bottles ADD description");
+                }
+                db.execSQL("UPDATE bottles SET date=date/1000");
+                db.setTransactionSuccessful();
+                db.endTransaction();
+                Log.d("_SQL", "Upgrade to 5");
+                break;
         }
-        // create fresh books table
+
+
         this.onCreate(db);
     }
 
@@ -93,8 +116,10 @@ public class alkosql extends SQLiteOpenHelper {
     private static final String KEY_PEREGON = "peregon";
     private static final String KEY_DATE = "date";
     private static final String KEY_TIMESTAMP = "timestamp";
+    private static final String KEY_DESCR = "description";
 
-    private static final String[] COLUMNS = {KEY_ID,KEY_SID,KEY_VOLUME,KEY_TYPE,KEY_SOURCE,KEY_ALKACH,KEY_DONE,KEY_ALCO,KEY_SUGAR,KEY_PEREGON,KEY_DATE,KEY_TIMESTAMP};
+    private static final String[] COLUMNS = {KEY_ID,KEY_SID,KEY_VOLUME,KEY_TYPE,KEY_SOURCE,
+            KEY_ALKACH,KEY_DONE,KEY_ALCO,KEY_SUGAR,KEY_PEREGON,KEY_DATE,KEY_TIMESTAMP,KEY_DESCR};
 
     public void addBottle(Bottle bottle){
         //for logging
@@ -112,16 +137,20 @@ public class alkosql extends SQLiteOpenHelper {
         values.put(KEY_ALCO, bottle.getAlco());
         values.put(KEY_SUGAR, bottle.getSugar());
         values.put(KEY_PEREGON, bottle.getPeregon());
-        values.put(KEY_DATE, String.valueOf(bottle.getDate().getTime()));
-        values.put(KEY_TIMESTAMP, String.valueOf(bottle.getTimeStamp().getTime()));
+        values.put(KEY_DATE, String.valueOf(Math.round(bottle.getDate().getTime()/1000)));
+        values.put(KEY_TIMESTAMP, String.valueOf(Math.round(bottle.getTimeStamp().getTime()/1000)));
         values.put(KEY_SOURCE, bottle.getSource().toString());
+        values.put(KEY_DESCR, bottle.getDescription());
 
         // 3. insert
+        db.beginTransaction();
         db.insert(TABLE_BOTTLES, // table
                 null, //nullColumnHack
                 values); // key/value -> keys = column names/ values = column values
 
         // 4. close
+        db.setTransactionSuccessful();
+        db.endTransaction();
         db.close();
     }
 
@@ -143,7 +172,7 @@ public class alkosql extends SQLiteOpenHelper {
 
         // 3. if we got results get the first one
         if (cursor != null) {
-            Log.d("SQL", "total selected bottles: " + String.valueOf(cursor.getCount()));
+            Log.d("_SQL", "total selected bottles: " + String.valueOf(cursor.getCount()));
             cursor.moveToFirst();
             Bottle bottle = fillBottle(cursor);
             //log
@@ -158,7 +187,7 @@ public class alkosql extends SQLiteOpenHelper {
 
     private Bottle fillBottle(Cursor cursor) {
         Bottle bottle = new Bottle();
-        Log.d("SQL","start fillBottle1");
+        Log.d("_SQL","start fillBottle1");
         bottle.setId(cursor.getInt(0));
         bottle.setsId(cursor.getString(1));
         bottle.setVolume(cursor.getInt(2));
@@ -169,20 +198,21 @@ public class alkosql extends SQLiteOpenHelper {
         bottle.setAlco(cursor.getInt(7));
         bottle.setSugar(cursor.getInt(8));
         bottle.setPeregon(cursor.getInt(9));
-        Date date = new Date(cursor.getLong(10));
+        Date date = new Date(cursor.getLong(10)*1000);
         bottle.setDate(date);
-        Log.d("SQL","end fillBottle");
+        bottle.setDescription(cursor.getString(12));
+        Log.d("_SQL","end fillBottle");
         //TODO: Add other field
 
         return bottle;
     }
 
-    public List<Bottle> searchBottles(String type){
+    public List<Bottle> searchBottles(String filter){
 
         List<Bottle> bottles = new LinkedList<>();
 
         // 1. build the query
-        String query = "SELECT  * FROM " + TABLE_BOTTLES;
+        String query = "SELECT  * FROM " + TABLE_BOTTLES + " ORDER BY " + KEY_DATE + " DESC";
 
         // 2. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
@@ -217,12 +247,15 @@ public class alkosql extends SQLiteOpenHelper {
         values.put(KEY_ALKACH, bottle.getAlkach());
 
         // 3. updating row
+        db.beginTransaction();
         int i = db.update(TABLE_BOTTLES, //table
                 values, // column/value
                 KEY_ID+" = ?", // selections
                 new String[] { String.valueOf(bottle.getId()) }); //selection args
 
         // 4. close
+        db.setTransactionSuccessful();
+        db.endTransaction();
         db.close();
 
         return i;
@@ -235,11 +268,14 @@ public class alkosql extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         // 2. delete
+        db.beginTransaction();
         db.delete(TABLE_BOTTLES, //table name
                 KEY_ID+" = ?",  // selections
                 new String[] { String.valueOf(bottle.getId()) }); //selections args
 
         // 3. close
+        db.setTransactionSuccessful();
+        db.endTransaction();
         db.close();
 
         //log

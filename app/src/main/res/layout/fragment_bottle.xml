@@ -133,4 +133,32 @@
         android:autoText="false"
         android:enabled="false"/>
 
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/etDescr"
+        android:layout_below="@+id/date"
+        android:layout_alignStart="@+id/date"
+        android:layout_alignParentEnd="true"
+        android:enabled="false"
+        android:gravity="bottom"
+        android:inputType="textMultiLine" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="описание"
+        android:id="@+id/tvDescr"
+        android:layout_alignBaseline="@+id/etDescr"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="исходники"
+        android:id="@+id/tvSource"
+        android:layout_below="@+id/etDescr"
+        android:layout_alignParentStart="true"
+        android:enabled="false"/>
+
 </RelativeLayout>

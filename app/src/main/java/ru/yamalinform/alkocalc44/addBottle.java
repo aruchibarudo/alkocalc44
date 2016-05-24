@@ -18,6 +18,8 @@ import java.util.Locale;
 
 public class addBottle extends AppCompatActivity {
 
+    private DateFormat sdf = new SimpleDateFormat("d.MM.yy", Locale.getDefault()); //"d.MM.yy", Locale.ENGLISH
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +33,7 @@ public class addBottle extends AppCompatActivity {
         final EditText etPeregon = (EditText) findViewById(R.id.peregon);
         final EditText etSugar = (EditText) findViewById(R.id.sugar);
         final EditText etDate = (EditText) findViewById(R.id.date);
+        final EditText etDescr = (EditText) findViewById(R.id.etDescr);
         final Button btnOk = (Button) findViewById(R.id.btnOk);
         final CheckBox cbWrite = (CheckBox) findViewById(R.id.cbWrite);
         final Date date;
@@ -44,6 +47,8 @@ public class addBottle extends AppCompatActivity {
         }else {
             source = "[{id:0,volume:0}]";
         }
+
+        etDate.setText(sdf.format(new java.util.Date()));
 
         btnOk.setOnClickListener(new Button.OnClickListener() {
 
@@ -66,16 +71,18 @@ public class addBottle extends AppCompatActivity {
                     //bottle.setTimeStamp(new java.sql.Date(Calendar.getInstance().getTime().getTime()));
                     //bottle.setDate(new java.sql.Date(Calendar.getInstance().getTime().getTime()));
                     String stDate = etDate.getText().toString();
-                    DateFormat format = new SimpleDateFormat("d/MM/yy", Locale.ENGLISH);
+
                     try {
                         //SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-                        java.util.Date parsed = format.parse(stDate);
+                        java.util.Date parsed = sdf.parse(stDate);
                         bottle.setDate(new java.sql.Date(parsed.getTime()));
                     } catch (Exception e) {
                         Log.d("MAIN", e.getMessage());
                     }
+
                     bottle.setSugar(Integer.parseInt(etSugar.getText().toString()));
                     bottle.setSource(source);
+                    bottle.setDescription(etDescr.getText().toString());
 
                     alkosql db = new alkosql(getApplicationContext());
                     //ArrayList<Bottle> bb = null;
