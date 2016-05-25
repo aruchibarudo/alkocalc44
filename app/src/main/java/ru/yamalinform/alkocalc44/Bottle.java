@@ -18,7 +18,7 @@ public class Bottle {
     private int id;
     private String sId;
     private int volume;
-    private String type;
+    private int type;
     private JSONArray source;
     private String alkach = "lehichu@gmail.com";
     private boolean done;
@@ -28,14 +28,12 @@ public class Bottle {
     private Date date, timestamp;
     private String description;
 
-
-
     public Bottle(){
         timestamp = new Date(Calendar.getInstance().getTime().getTime());
         //date = timestamp;
     }
 
-    public Bottle(String sId, int volume, String type, int alco, int peregon) {
+    public Bottle(String sId, int volume, int type, int alco, int peregon) {
         super();
         this.sId = sId;
         this.volume = volume;
@@ -74,7 +72,7 @@ public class Bottle {
         return volume;
     }
 
-    public String getType() {
+    public int getType() {
         return type;
     }
 
@@ -111,7 +109,7 @@ public class Bottle {
         this.volume = volume;
     }
 
-    public void setType(String type) {
+    public void setType(int type) {
         this.type = type;
     }
 

@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 //import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 //import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -48,6 +49,7 @@ public class viewBottle extends AppCompatActivity {
     private alkosql db;
     private String filter;
     private int pos;
+    private int bottleId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +72,7 @@ public class viewBottle extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setCurrentItem(pos);
+        bottleId = Bottles.get(mViewPager.getCurrentItem()).getId();
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -79,9 +82,9 @@ public class viewBottle extends AppCompatActivity {
                 Snackbar.make(view, "Клонировать бутыльку", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
-                Intent intent = new Intent(viewBottle.this, addBottle.class);
+                Intent intent = new Intent(viewBottle.this, updateBottle.class);
                 //intent.putExtra("filter", mSectionsPagerAdapter.getItem(pos).getView().findViewById(R.id.alco));
-                //intent.putExtra("pos", position);
+                intent.putExtra("bottleId", bottleId);
                 startActivity(intent);
             }
         });
@@ -119,13 +122,13 @@ public class viewBottle extends AppCompatActivity {
          * fragment.
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
-        private EditText etSId;
-        private EditText etAlco;
-        private EditText etVolume;
-        private EditText etPeregon;
-        private EditText etSugar;
-        private EditText etDate;
-        private EditText etDescr;
+        private TextView etSId;
+        private TextView etAlco;
+        private TextView etVolume;
+        private TextView etPeregon;
+        private TextView etSugar;
+        private TextView etDate;
+        private TextView etDescr;
 
         public PlaceholderFragment() {
         }
@@ -154,13 +157,14 @@ public class viewBottle extends AppCompatActivity {
             Bottle bottle = viewBottle.Bottles.get(getArguments().getInt(ARG_SECTION_NUMBER));
             //tvLabel.setText(bottle.getsId());
 
-            etSId = (EditText) rootView.findViewById(R.id.sId);
-            etAlco = (EditText) rootView.findViewById(R.id.alco);
-            etVolume = (EditText) rootView.findViewById(R.id.volume);
-            etPeregon = (EditText) rootView.findViewById(R.id.peregon);
-            etSugar = (EditText) rootView.findViewById(R.id.sugar);
-            etDate = (EditText) rootView.findViewById(R.id.date);
-            etDescr = (EditText) rootView.findViewById(R.id.etDescr);
+            //viewBottle.bottleId = bottle.getId() - 1;
+            etSId = (TextView) rootView.findViewById(R.id.sId);
+            etAlco = (TextView) rootView.findViewById(R.id.alco);
+            etVolume = (TextView) rootView.findViewById(R.id.volume);
+            etPeregon = (TextView) rootView.findViewById(R.id.peregon);
+            etSugar = (TextView) rootView.findViewById(R.id.sugar);
+            etDate = (TextView) rootView.findViewById(R.id.date);
+            etDescr = (TextView) rootView.findViewById(R.id.etDescr);
 
             etSId.setText(bottle.getsId());
             etAlco.setText(String.valueOf(bottle.getAlco()));
@@ -170,6 +174,7 @@ public class viewBottle extends AppCompatActivity {
             SimpleDateFormat sdf = new SimpleDateFormat("d.MM.yy", Locale.getDefault());
             etDate.setText(sdf.format(bottle.getDate()));
             etDescr.setText(bottle.getDescription());
+
 
             return rootView;
         }

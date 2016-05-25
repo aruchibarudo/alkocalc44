@@ -1,11 +1,8 @@
 package ru.yamalinform.alkocalc44;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.ArraySet;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -14,15 +11,23 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-public class addBottle extends AppCompatActivity {
+/**
+ * Created by archy on 5/25/16.
+ */
+
+public class updateBottle  extends AppCompatActivity {
     protected int iType;
     protected String[] alkotype;
+    protected int Id;
+    private alkosql db;
+    private Bottle bottle;
 
     private DateFormat sdf = new SimpleDateFormat("d.MM.yy", Locale.getDefault()); //"d.MM.yy", Locale.ENGLISH
 
@@ -46,21 +51,25 @@ public class addBottle extends AppCompatActivity {
         final String source;
         final Spinner spAlkotype = (Spinner) findViewById(R.id.spAlkotype);
         alkotype = getResources().getStringArray(R.array.alkotype);
-
-        etDate.setText(sdf.format(new java.util.Date()));
+        db = new alkosql(getApplicationContext());
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_item, alkotype);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        Log.d("ADD_BOTTLE", String.valueOf(adapter.getCount()));
+        //Log.d("UPD_BOTTLE", String.valueOf(adapter.getCount()));
 
         spAlkotype.setAdapter(adapter);
 
-        if(getIntent().getExtras() != null && getIntent().getExtras().size() == 3) {
-            etAlco.setText(getIntent().getExtras().getString("alco"));
-            etVolume.setText(getIntent().getExtras().getString("volume"));
-            source = getIntent().getExtras().getString("source");
-        }else {
-            source = "[{id:0,volume:0}]";
+        if(getIntent().getExtras() != null && getIntent().getExtras().size() == 1) {
+            bottle = db.getBottle(getIntent().getExtras().getInt("bottleId"));
+            etSId.setText(bottle.getsId());
+            etAlco.setText(String.valueOf(bottle.getAlco()));
+            etVolume.setText(String.valueOf(bottle.getVolume()));
+            etPeregon.setText(String.valueOf(bottle.getPeregon()));
+            etSugar.setText(String.valueOf(bottle.getSugar()));
+            SimpleDateFormat sdf = new SimpleDateFormat("d.MM.yy", Locale.getDefault());
+            etDate.setText(sdf.format(bottle.getDate()));
+            etDescr.setText(bottle.getDescription());
+            spAlkotype.setSelection(bottle.getType());
         }
 
         spAlkotype.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
@@ -78,42 +87,40 @@ public class addBottle extends AppCompatActivity {
 
 
 //                FileSaver doWr = new FileSaver(getApplicationContext(), filename);
-                // TODO: Make add button with form for new Bottle
 
                 if (cbWrite.isChecked()) {
-                    // TODO: insert Bottle into table
+
 //                    Date date = new Date();
 //                    doWr.writeXml(date, tvOutput.getText().toString(), sType);
-                    Log.d("MAIN", "Start add bottle");
-                    Bottle bottle = new Bottle(etSId.getText().toString(),
-                            Integer.parseInt(etVolume.getText().toString()),
-                            iType,
-                            Integer.parseInt(etAlco.getText().toString()),
-                            Integer.parseInt(etPeregon.getText().toString()));
-                    //bottle.setTimeStamp(new java.sql.Date(Calendar.getInstance().getTime().getTime()));
-                    //bottle.setDate(new java.sql.Date(Calendar.getInstance().getTime().getTime()));
+                    Log.d("UPD_BOTTLE", "Start update bottle");
+                    bottle.setsId(etSId.getText().toString());
+                    bottle.setVolume(Integer.parseInt(etVolume.getText().toString()));
+                    bottle.setType(iType);
+                    bottle.setAlco(Integer.parseInt(etAlco.getText().toString()));
+                    bottle.setPeregon(Integer.parseInt(etPeregon.getText().toString()));
                     String stDate = etDate.getText().toString();
 
                     try {
-                        //SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
                         java.util.Date parsed = sdf.parse(stDate);
                         bottle.setDate(new java.sql.Date(parsed.getTime()));
                     } catch (Exception e) {
-                        Log.d("MAIN", e.getMessage());
+                        Log.d("UPD_BOTTLE", e.getMessage());
                     }
 
                     bottle.setSugar(Integer.parseInt(etSugar.getText().toString()));
-                    bottle.setSource(source);
                     bottle.setDescription(etDescr.getText().toString());
 
-                    alkosql db = new alkosql(getApplicationContext());
+
                     //ArrayList<Bottle> bb = null;
-                    db.addBottle(bottle);
-                    Log.d("MAIN", "End add bottle");
+                    int res = db.updateBottle(bottle);
+                    if(res < 1) {
+                        Toast.makeText(updateBottle.this, "Что-то не обновилось", Toast.LENGTH_SHORT).show();
+                    }
+                    Log.d("UPD_BOTTLE", "Updated bottle sId: " + bottle.getsId() + " count: " + String.valueOf(res));
+                    Log.d("UPD_BOTTLE", "End update bottle");
                     finish();
                 }
             }
         });
     }
-
 }

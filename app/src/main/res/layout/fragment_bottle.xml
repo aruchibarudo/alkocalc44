@@ -28,14 +28,15 @@
         android:layout_alignBottom="@+id/sId"
         android:layout_alignParentStart="true" />
 
-    <EditText
+    <TextView
         android:layout_width="50dp"
         android:layout_height="wrap_content"
         android:id="@+id/sId"
-        android:inputType="numberDecimal"
         android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/peregon"
-        android:enabled="false" />
+        android:layout_toEndOf="@+id/tvDescr"
+        android:textAppearance="@android:style/TextAppearance.Large"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -46,15 +47,16 @@
         android:layout_alignBottom="@+id/alco"
         android:layout_alignParentStart="true" />
 
-    <EditText
+    <TextView
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:inputType="numberDecimal"
         android:ems="10"
         android:id="@+id/alco"
         android:layout_below="@+id/sId"
-        android:layout_toEndOf="@+id/textView2"
-        android:enabled="false" />
+        android:layout_toEndOf="@+id/tvDescr"
+        android:textAppearance="@android:style/TextAppearance.Large"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -65,15 +67,16 @@
         android:layout_alignBottom="@+id/peregon"
         android:layout_alignParentStart="true" />
 
-    <EditText
+    <TextView
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:inputType="numberDecimal"
         android:ems="10"
         android:id="@+id/peregon"
         android:layout_below="@+id/alco"
-        android:layout_alignStart="@+id/alco"
-        android:enabled="false" />
+        android:layout_toEndOf="@+id/tvDescr"
+        android:textAppearance="@android:style/TextAppearance.Large"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -84,15 +87,16 @@
         android:layout_alignBottom="@+id/volume"
         android:layout_alignParentStart="true" />
 
-    <EditText
+    <TextView
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:inputType="numberDecimal"
         android:ems="10"
         android:id="@+id/volume"
         android:layout_below="@+id/peregon"
-        android:layout_toEndOf="@+id/textView2"
-        android:enabled="false"/>
+        android:layout_toEndOf="@+id/tvDescr"
+        android:textAppearance="@android:style/TextAppearance.Large"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -103,15 +107,16 @@
         android:layout_alignBottom="@+id/sugar"
         android:layout_alignParentStart="true" />
 
-    <EditText
+    <TextView
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:inputType="numberDecimal"
         android:ems="10"
         android:id="@+id/sugar"
         android:layout_below="@+id/volume"
-        android:layout_alignStart="@+id/peregon"
-        android:enabled="false"/>
+        android:layout_toEndOf="@+id/tvDescr"
+        android:textAppearance="@android:style/TextAppearance.Large"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -122,27 +127,16 @@
         android:layout_alignBottom="@+id/date"
         android:layout_alignParentStart="true" />
 
-    <EditText
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="date"
         android:ems="10"
         android:id="@+id/date"
         android:layout_below="@+id/sugar"
-        android:layout_toEndOf="@+id/textView2"
-        android:autoText="false"
-        android:enabled="false"/>
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/etDescr"
-        android:layout_below="@+id/date"
-        android:layout_alignStart="@+id/date"
-        android:layout_alignParentEnd="true"
-        android:enabled="false"
-        android:gravity="bottom"
-        android:inputType="textMultiLine" />
+        android:layout_toEndOf="@+id/tvDescr"
+        android:textAppearance="@android:style/TextAppearance.Large"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -155,10 +149,20 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/etDescr"
+        android:gravity="bottom"
+        android:textAppearance="@android:style/TextAppearance.Large"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@+id/date"
+        android:layout_toEndOf="@+id/tvDescr" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="исходники"
         android:id="@+id/tvSource"
+        android:enabled="false"
         android:layout_below="@+id/etDescr"
-        android:layout_alignParentStart="true"
-        android:enabled="false"/>
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

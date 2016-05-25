@@ -20,7 +20,7 @@ public class alkosql extends SQLiteOpenHelper {
 
 
     // Database Version
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
     // Database Name
     private static final String DATABASE_NAME = "alkodb";
     private String CREATE_BOTTLES_TABLE;
@@ -90,6 +90,18 @@ public class alkosql extends SQLiteOpenHelper {
                 db.setTransactionSuccessful();
                 db.endTransaction();
                 Log.d("_SQL", "Upgrade to 5");
+                break;
+            case 6:
+                db.beginTransaction();
+                if(oldVersion < 4) {
+                    db.execSQL("ALTER TABLE bottles ADD description");
+                }else if (oldVersion < 5) {
+                    db.execSQL("UPDATE bottles SET date=date/1000");
+                }
+                db.execSQL("UPDATE bottles SET type=1");
+                db.setTransactionSuccessful();
+                db.endTransaction();
+                Log.d("_SQL", "Upgrade to 6");
                 break;
         }
 
@@ -185,13 +197,44 @@ public class alkosql extends SQLiteOpenHelper {
         return null;
     }
 
+    public Bottle getBottle(int id){
+
+        // 1. get reference to readable DB
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // 2. build query
+        Cursor cursor =
+                db.query(TABLE_BOTTLES, // a. table
+                        COLUMNS, // b. column names
+                        " id = ?", // c. selections
+                        new String[] { String.valueOf(id) }, // d. selections args
+                        null, // e. group by
+                        null, // f. having
+                        null, // g. order by
+                        null); // h. limit
+
+        // 3. if we got results get the first one
+        if (cursor != null) {
+            Log.d("_SQL", "total selected bottles: " + String.valueOf(cursor.getCount()));
+            cursor.moveToFirst();
+            Bottle bottle = fillBottle(cursor);
+            //log
+            Log.d("getBottle("+id+")", bottle.toString());
+
+            // 5. return book
+            return bottle;
+        }
+
+        return null;
+    }
+
     private Bottle fillBottle(Cursor cursor) {
         Bottle bottle = new Bottle();
         Log.d("_SQL","start fillBottle1");
         bottle.setId(cursor.getInt(0));
         bottle.setsId(cursor.getString(1));
         bottle.setVolume(cursor.getInt(2));
-        bottle.setType(cursor.getString(3));
+        bottle.setType(cursor.getInt(3));
         bottle.setSource(cursor.getString(4));
         bottle.setAlkach(cursor.getString(5));
         bottle.setDone(Boolean.parseBoolean(cursor.getString(6)));
@@ -245,6 +288,13 @@ public class alkosql extends SQLiteOpenHelper {
         values.put(KEY_VOLUME, bottle.getVolume());
         values.put(KEY_TYPE, bottle.getType());
         values.put(KEY_ALKACH, bottle.getAlkach());
+        values.put(KEY_ALCO, bottle.getAlco());
+        values.put(KEY_SUGAR, bottle.getSugar());
+        values.put(KEY_PEREGON, bottle.getPeregon());
+        values.put(KEY_DATE, String.valueOf(Math.round(bottle.getDate().getTime()/1000)));
+        values.put(KEY_TIMESTAMP, String.valueOf(Math.round(bottle.getTimeStamp().getTime()/1000)));
+        values.put(KEY_SOURCE, bottle.getSource().toString());
+        values.put(KEY_DESCR, bottle.getDescription());
 
         // 3. updating row
         db.beginTransaction();

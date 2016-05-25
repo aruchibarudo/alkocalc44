@@ -27,8 +27,7 @@
         android:text="@string/btnText"
         android:id="@+id/btnOk"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="53dp" />
+        android:layout_centerHorizontal="true" />
 
     <CheckBox
         android:layout_width="wrap_content"
@@ -168,5 +167,14 @@
         android:layout_alignBaseline="@+id/etDescr"
         android:layout_alignBottom="@+id/etDescr"
         android:layout_alignParentStart="true" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/spAlkotype"
+        android:layout_below="@+id/radioGroup"
+        android:layout_marginLeft="10dp"
+        android:spinnerMode="dropdown"
+        android:layout_toEndOf="@+id/date" />
 
 </RelativeLayout>

@@ -106,6 +106,7 @@
     <string name="title_activity_list_bottle">Бутыли</string>
     <string name="title_activity_report_bottle">Алкоотчет</string>
     <string name="title_activity_add_bottle">Добавить бутыль</string>
+    <string name="title_activity_update_bottle">Пофиксить бутыль</string>
     <string name="btnText">fock</string>
     <string name="cbText">записать</string>
     <string name="vodka">водка</string>
@@ -117,4 +118,13 @@
     <string name="sugar">сахар</string>
     <string name="hGrad1">градус</string>
     <string name="fock">FOCK</string>
+    <string-array name="alkotype">
+        <item>самогоныч</item>
+        <item>вино</item>
+        <item>портвешок</item>
+        <item>коньяк</item>
+        <item>граппа</item>
+        <item>ХЗ</item>
+        <item>яд</item>
+    </string-array>
 </resources>
