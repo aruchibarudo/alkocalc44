@@ -1,14 +1,19 @@
 package ru.yamalinform.alkocalc44;
 
+import android.app.Application;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -25,9 +30,11 @@ public class alkosql extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "alkodb";
     private String CREATE_BOTTLES_TABLE;
     private String CREATE_REPORTS_TABLE;
+    private Context context;
 
     public alkosql(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
 
     @Override
@@ -250,13 +257,35 @@ public class alkosql extends SQLiteOpenHelper {
         return bottle;
     }
 
-    public List<Bottle> searchBottles(String filter){
+    private String makeFilter(String filter) {
+        String res = "";
 
+        //String[] alkotype = this.context.getResources().getStringArray(R.array.alkotype);
+
+        ArrayList<String> type = new ArrayList<>(Arrays.asList(
+                this.context.getResources().getStringArray(R.array.alkotype)));
+
+        if(type.contains(filter)) {
+            res = " where type=" + String.valueOf(type.indexOf(filter)) + " ";
+        }else{
+            res = " where like('%" + filter + "%', " + KEY_SID + ") or like ('%" + filter + "%', " + KEY_DESCR + ")";
+        }
+
+        return res;
+    }
+
+    public List<Bottle> searchBottles(String filter){
         List<Bottle> bottles = new LinkedList<>();
 
         // 1. build the query
-        String query = "SELECT  * FROM " + TABLE_BOTTLES + " ORDER BY " + KEY_DATE + " DESC";
 
+        String where = "";
+        if (filter != null) {
+            where = makeFilter(filter);
+        }
+
+        String query = "SELECT  * FROM " + TABLE_BOTTLES + where + " ORDER BY " + KEY_DATE + " DESC";
+        Log.d("_SQL", query);
         // 2. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
@@ -276,6 +305,8 @@ public class alkosql extends SQLiteOpenHelper {
         // return books
         return bottles;
     }
+
+
 
     public int updateBottle(Bottle bottle) {
 

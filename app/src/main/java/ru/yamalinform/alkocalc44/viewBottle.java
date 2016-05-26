@@ -72,7 +72,6 @@ public class viewBottle extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setCurrentItem(pos);
-        bottleId = Bottles.get(mViewPager.getCurrentItem()).getId();
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -84,6 +83,7 @@ public class viewBottle extends AppCompatActivity {
 
                 Intent intent = new Intent(viewBottle.this, updateBottle.class);
                 //intent.putExtra("filter", mSectionsPagerAdapter.getItem(pos).getView().findViewById(R.id.alco));
+                bottleId = Bottles.get(mViewPager.getCurrentItem()).getId();
                 intent.putExtra("bottleId", bottleId);
                 startActivity(intent);
             }

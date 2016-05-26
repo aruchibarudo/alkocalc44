@@ -1,10 +1,14 @@
 package ru.yamalinform.alkocalc44;
 
+import android.app.SearchManager;
 import android.content.Intent;
 //import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.CursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -21,6 +25,7 @@ import android.widget.Toast;
 //import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -35,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fab;
     private Menu menu;
     private SparseBooleanArray mixArray;
+    private String[] alkotype;
+
 
 
     final String LOG_TAG = "list_bottle";
@@ -63,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         db = new alkosql(getApplicationContext());
         lvBottles = (ListView) findViewById(R.id.lvBottles);
         listAdapter = new ArrayAdapter<>(this, R.layout.list_view, listBottles);
+        alkotype = getResources().getStringArray(R.array.alkotype);
 
         lvBottles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
@@ -95,6 +103,47 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_list_bottles, menu);
+
+        menu.getItem(2).setVisible(true);
+        menu.getItem(3).setVisible(false);
+
+        final MenuItem searchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) searchItem.getActionView();
+        //searchView.setQuery(filter,false);
+
+        SearchManager searchManager = (SearchManager) getSystemService(getApplicationContext().SEARCH_SERVICE);
+        if(null!=searchManager ) {
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        }
+        searchView.setIconifiedByDefault(false);
+
+        // TODO: Автоподсказка при вводе в поиск типа метанола и может быть еще чего
+        // searchView.setSuggestionsAdapter(new ArrayList<String>(Arrays.asList(alkotype)));
+        //CursorAdapter searchAdapter = new SimpleCursorAdapter(this, );
+        //searchView.setSuggestionsAdapter(searchAdapter);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                //Toast.makeText(getApplicationContext(), query, Toast.LENGTH_SHORT);
+                if(query.length() > 2) {
+                    filter = query;
+                    getBottles(filter);
+                }else{
+                    Toast.makeText(getApplicationContext(), "Надо больше букв", Toast.LENGTH_SHORT).show();
+                }
+
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                //MainActivity.this.listAdapter.getFilter().filter(newText);
+                return false;
+            }
+
+        });
+
         return true;
     }
 
@@ -141,8 +190,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-                menu.clear();
-                menu.add(0, R.id.mCancel, 0, R.string.action_cancel);
+                //menu.clear();
+                menu.getItem(2).setVisible(false);
+                menu.getItem(3).setVisible(true);
                 break;
             case R.id.mCancel:
                 lvBottles.clearChoices();
@@ -170,9 +220,13 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-                menu.clear();
-                menu.add(0, R.id.mCoupage, 0, R.string.action_coupage);
+                //menu.clear();
+                menu.getItem(2).setVisible(true);
+                menu.getItem(3).setVisible(false);
                 break;
+            case R.id.mSearchCancel:
+                filter = "";
+                getBottles(filter);
         }
         return super.onOptionsItemSelected(item);
     }

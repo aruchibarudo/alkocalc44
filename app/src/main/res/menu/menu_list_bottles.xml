@@ -3,8 +3,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="ru.yamalinform.alkocalc44.listBottles">
     <item
+        android:id="@+id/action_search"
+        android:title="@android:string/search_go"
+        android:icon="@drawable/abc_ic_search_api_mtrl_alpha"
+        app:showAsAction="always|collapseActionView"
+        app:actionViewClass="android.support.v7.widget.SearchView" />
+
+    <item
+        android:id="@+id/mSearchCancel"
+        android:orderInCategory="100"
+        android:title="Отменить фильтр"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/mCoupage"
         android:orderInCategory="100"
         android:title="@string/action_coupage"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/mCancel"
+        android:orderInCategory="100"
+        android:title="@string/action_cancel"
         app:showAsAction="never" />
 </menu>
