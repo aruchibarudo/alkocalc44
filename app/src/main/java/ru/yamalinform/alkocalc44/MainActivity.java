@@ -3,6 +3,7 @@ package ru.yamalinform.alkocalc44;
 import android.app.SearchManager;
 import android.content.Intent;
 //import android.net.Uri;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.CursorAdapter;
@@ -41,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private Menu menu;
     private SparseBooleanArray mixArray;
     private String[] alkotype;
+    public Cursor cursorSugg;
+    public CursorAdapter searchAdapter;
 
 
 
@@ -70,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         db = new alkosql(getApplicationContext());
         lvBottles = (ListView) findViewById(R.id.lvBottles);
         listAdapter = new ArrayAdapter<>(this, R.layout.list_view, listBottles);
-        alkotype = getResources().getStringArray(R.array.alkotype);
+        //alkotype = getResources().getStringArray(R.array.alkotype);
 
         lvBottles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
@@ -109,6 +112,10 @@ public class MainActivity extends AppCompatActivity {
 
         final MenuItem searchItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) searchItem.getActionView();
+
+
+
+
         //searchView.setQuery(filter,false);
 
         SearchManager searchManager = (SearchManager) getSystemService(getApplicationContext().SEARCH_SERVICE);
@@ -117,12 +124,23 @@ public class MainActivity extends AppCompatActivity {
         }
         searchView.setIconifiedByDefault(false);
 
-        // TODO: Автоподсказка при вводе в поиск типа метанола и может быть еще чего
-        // searchView.setSuggestionsAdapter(new ArrayList<String>(Arrays.asList(alkotype)));
-        //CursorAdapter searchAdapter = new SimpleCursorAdapter(this, );
-        //searchView.setSuggestionsAdapter(searchAdapter);
+        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                return false;
+            }
+
+            @Override
+            public boolean onSuggestionClick(int position) {
+                cursorSugg.moveToPosition(position);
+                searchView.setQuery(cursorSugg.getString(2), false);
+                return false;
+            }
+        });
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
             @Override
             public boolean onQueryTextSubmit(String query) {
                 //Toast.makeText(getApplicationContext(), query, Toast.LENGTH_SHORT);
@@ -138,7 +156,14 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                String[] from = new String[] {db.KEY_VALUE};
+                int[] to = new int[]{android.R.id.text1};
+
                 //MainActivity.this.listAdapter.getFilter().filter(newText);
+                cursorSugg = db.searchDict(db.TYPE_ALKO, newText);
+                searchAdapter = new SimpleCursorAdapter(getApplicationContext(), android.R.layout.simple_list_item_1, cursorSugg,from,to,CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+                searchView.setSuggestionsAdapter(searchAdapter);
+                searchAdapter.notifyDataSetChanged();
                 return false;
             }
 
@@ -179,14 +204,18 @@ public class MainActivity extends AppCompatActivity {
                 fab.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(MainActivity.this, mixBottle.class);
-                        for(int i=0; i<mixArray.size(); i++) {
-                            Log.d("TO_MIX", "id" + String.valueOf(i+1) + ":" + Bottles.get(mixArray.keyAt(i)).getsId());
-                            intent.putExtra("id" + String.valueOf(i+1), Bottles.get(mixArray.keyAt(i)).getsId());
+                        if(mixArray!=null && mixArray.size() == 2) {
+                            Intent intent = new Intent(MainActivity.this, mixBottle.class);
+                            for(int i=0; i<mixArray.size(); i++) {
+                                Log.d("TO_MIX", "id" + String.valueOf(i+1) + ":" + String.valueOf(Bottles.get(mixArray.keyAt(i)).getId()));
+                                intent.putExtra("id" + String.valueOf(i+1), Bottles.get(mixArray.keyAt(i)).getId());
+                            }
+                            //intent.putExtra("id1", )
+                            startActivity(intent);
+                        }else {
+                            Toast.makeText(getApplicationContext(), "Минимум две бутылки", Toast.LENGTH_LONG).show();
                         }
-                        //intent.putExtra("id1", )
-                        startActivity(intent);
-                        //Snackbar.make(view, "Добавить бутыльку", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+
                     }
                 });
 

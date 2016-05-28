@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Date;
+import java.sql.SQLRecoverableException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -17,6 +18,7 @@ import java.util.Calendar;
 public class Bottle {
     private int id;
     private String sId;
+    private String Stype;
     private int volume;
     private int type;
     private JSONArray source;
@@ -52,6 +54,7 @@ public class Bottle {
         return "Bottle [" + sId + ", " + volume + ", " + type + ", " + source.toString() + "]";
     }
 
+    public String getStype() { return this.Stype; }
     public String getDescription() {
         return description;
     }
@@ -113,6 +116,8 @@ public class Bottle {
         this.type = type;
     }
 
+    public void setSType(String stype) { this.Stype = stype; }
+
     public void setAlkach(String alkach) {
         this.alkach = alkach;
     }
@@ -165,8 +170,8 @@ public class Bottle {
         JSONArray res = null;
 
         try {
-            res = new JSONArray("[{id:" + String.valueOf(b1.getsId()) + ",volume:" + String.valueOf(b1.getVolume())+"}," +
-                    "{id:" + String.valueOf(b2.getsId()) + ",volume:" + String.valueOf(b2.getVolume())+"}]");
+            res = new JSONArray("[{id:" + String.valueOf(b1.getId()) + ",volume:" + String.valueOf(b1.getVolume())+"}," +
+                    "{id:" + String.valueOf(b2.getId()) + ",volume:" + String.valueOf(b2.getVolume())+"}]");
             this.source = res;
         } catch (JSONException e) {
             e.printStackTrace();

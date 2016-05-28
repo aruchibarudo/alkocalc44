@@ -1,6 +1,9 @@
 package ru.yamalinform.alkocalc44;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
+import android.support.annotation.LayoutRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +14,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,6 +27,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 //import android.widget.TextView;
+
+import org.json.JSONException;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -78,8 +84,8 @@ public class viewBottle extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Клонировать бутыльку", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //Snackbar.make(view, "Клонировать бутыльку", Snackbar.LENGTH_LONG)
+                //        .setAction("Action", null).show();
 
                 Intent intent = new Intent(viewBottle.this, updateBottle.class);
                 //intent.putExtra("filter", mSectionsPagerAdapter.getItem(pos).getView().findViewById(R.id.alco));
@@ -128,7 +134,7 @@ public class viewBottle extends AppCompatActivity {
         private TextView etPeregon;
         private TextView etSugar;
         private TextView etDate;
-        private TextView etDescr;
+        private TextView etDescr, tvSrc1, tvSrc2;
 
         public PlaceholderFragment() {
         }
@@ -165,6 +171,8 @@ public class viewBottle extends AppCompatActivity {
             etSugar = (TextView) rootView.findViewById(R.id.sugar);
             etDate = (TextView) rootView.findViewById(R.id.date);
             etDescr = (TextView) rootView.findViewById(R.id.etDescr);
+            tvSrc1 = (TextView) rootView.findViewById(R.id.tvSrc1);
+            tvSrc2 = (TextView) rootView.findViewById(R.id.tvSrc2);
 
             etSId.setText(bottle.getsId());
             etAlco.setText(String.valueOf(bottle.getAlco()));
@@ -174,6 +182,54 @@ public class viewBottle extends AppCompatActivity {
             SimpleDateFormat sdf = new SimpleDateFormat("d.MM.yy", Locale.getDefault());
             etDate.setText(sdf.format(bottle.getDate()));
             etDescr.setText(bottle.getDescription());
+            tvSrc1.setVisibility(View.INVISIBLE);
+            tvSrc2.setVisibility(View.INVISIBLE);
+
+            try {
+                if(bottle.getSource().length() == 2) {
+                    alkosql db = new alkosql(getContext());
+                    int src1 = bottle.getSource().getJSONObject(0).getInt("id");
+                    String vol1 = bottle.getSource().getJSONObject(0).getString("volume");
+                    Log.d("VIEW_BOTTLE", String.valueOf(src1));
+                    Bottle b1 = db.getBottle(src1);
+                    if (b1!=null){
+                        tvSrc1.setText(b1.getsId() + ": " + vol1 + "мл");
+                        tvSrc1.setVisibility(View.VISIBLE);
+                    }else{
+                        tvSrc1.setText("Исходник " + String.valueOf(src1) + " в базе не найден");
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            tvSrc1.setTextAppearance(android.R.style.TextAppearance_Small);
+                        }
+                        tvSrc1.setTextColor(Color.BLUE);
+                        tvSrc1.setVisibility(View.VISIBLE);
+                    }
+                    int src2 = bottle.getSource().getJSONObject(1).getInt("id");
+                    String vol2 = bottle.getSource().getJSONObject(1).getString("volume");
+                    Log.d("VIEW_BOTTLE", String.valueOf(src2));
+                    Bottle b2 = db.getBottle(src2);
+                    if (b2!=null){
+                        tvSrc2.setText(b2.getsId() + ": " + vol2 + "мл");
+                        tvSrc2.setVisibility(View.VISIBLE);
+                    }else{
+                        tvSrc2.setText("Исходник " + String.valueOf(src2) + " в базе не найден");
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            tvSrc2.setTextAppearance(android.R.style.TextAppearance_Small);
+                        }
+                        tvSrc2.setTextColor(Color.BLUE);
+                        tvSrc2.setVisibility(View.VISIBLE);
+                    }
+                }
+            }catch (JSONException e) {
+                Log.e("VIEW_BOTTLE", e.getMessage());
+                e.printStackTrace();
+            }
+
+            tvSrc1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                }
+            });
 
 
             return rootView;

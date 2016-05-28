@@ -23,7 +23,8 @@ public class mixBottle extends AppCompatActivity {
 
     private alkosql db;
     private int iVol1, iVol2, iGrad;
-    private String id1, id2;
+    private String sid1, sid2;
+    private int id1, id2;
     private double dGrad;
 
     @Override
@@ -42,16 +43,19 @@ public class mixBottle extends AppCompatActivity {
         final TextView tvB2id = (TextView) findViewById(R.id.tvB2id);
         final Button btnOK = (Button) findViewById(R.id.btnMixOK);
 
-        id1 = getIntent().getExtras().getString("id1");
-        id2 = getIntent().getExtras().getString("id2");
+        //sid1 = getIntent().getExtras().getString("sid1");
+        //sid2 = getIntent().getExtras().getString("sid2");
+        id1 = getIntent().getExtras().getInt("id1");
+        id2 = getIntent().getExtras().getInt("id2");
+
         db = new alkosql(getApplicationContext());
-        Log.d("DO_MIX", "id1: " + id1);
-        Log.d("DO_MIX", "id2: " + id2);
+
         final Bottle b1 = db.getBottle(id1);
         final Bottle b2 = db.getBottle(id2);
-
-        tvB1id.setText(id1);
-        tvB2id.setText(id2);
+        Log.d("DO_MIX", "id1: " + b1.getsId());
+        Log.d("DO_MIX", "id2: " + b2.getsId());
+        tvB1id.setText(b1.getsId());
+        tvB2id.setText(b2.getsId());
         etGrad1.setText(String.valueOf(b1.getAlco()));
         etGrad2.setText(String.valueOf(b2.getAlco()));
 

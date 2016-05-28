@@ -48,7 +48,7 @@
         android:layout_alignParentStart="true" />
 
     <TextView
-        android:layout_width="50dp"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:ems="10"
         android:id="@+id/alco"
@@ -164,5 +164,25 @@
         android:enabled="false"
         android:layout_below="@+id/etDescr"
         android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvSrc1"
+        android:layout_below="@+id/tvSource"
+        android:layout_alignParentStart="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:padding="5dp"
+        android:layout_alignEnd="@+id/ivPic" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvSrc2"
+        android:layout_below="@+id/tvSrc1"
+        android:layout_alignParentStart="true"
+        android:layout_alignEnd="@+id/tvSrc1"
+        android:padding="5dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
 </RelativeLayout>

@@ -50,8 +50,9 @@ public class updateBottle  extends AppCompatActivity {
         final Date date;
         final String source;
         final Spinner spAlkotype = (Spinner) findViewById(R.id.spAlkotype);
-        alkotype = getResources().getStringArray(R.array.alkotype);
+        //Cursor cursor = db.searchDict(db.TYPE_ALKO);
         db = new alkosql(getApplicationContext());
+        alkotype = db.arrayDict(db.TYPE_ALKO);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_item, alkotype);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -69,13 +70,13 @@ public class updateBottle  extends AppCompatActivity {
             SimpleDateFormat sdf = new SimpleDateFormat("d.MM.yy", Locale.getDefault());
             etDate.setText(sdf.format(bottle.getDate()));
             etDescr.setText(bottle.getDescription());
-            spAlkotype.setSelection(bottle.getType());
+            spAlkotype.setSelection(bottle.getType() - 1);
         }
 
         spAlkotype.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent,
                                        View itemSelected, int selectedItemPosition, long selectedId) {
-                iType = selectedItemPosition;
+                iType = selectedItemPosition + 1;
             }
             public void onNothingSelected(AdapterView<?> parent) {
             }

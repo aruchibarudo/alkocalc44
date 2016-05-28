@@ -1,5 +1,7 @@
 package ru.yamalinform.alkocalc44;
 
+import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -18,6 +20,7 @@ import android.widget.Spinner;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Locale;
 
 public class addBottle extends AppCompatActivity {
@@ -45,7 +48,9 @@ public class addBottle extends AppCompatActivity {
         final Date date;
         final String source;
         final Spinner spAlkotype = (Spinner) findViewById(R.id.spAlkotype);
-        alkotype = getResources().getStringArray(R.array.alkotype);
+        alkosql db = new alkosql(getApplicationContext());
+        //Cursor cursor = db.searchDict(db.TYPE_ALKO);
+        alkotype = db.arrayDict(db.TYPE_ALKO);
 
         etDate.setText(sdf.format(new java.util.Date()));
 
@@ -66,7 +71,7 @@ public class addBottle extends AppCompatActivity {
         spAlkotype.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent,
                                        View itemSelected, int selectedItemPosition, long selectedId) {
-                iType = selectedItemPosition;
+                iType = selectedItemPosition + 1;
             }
             public void onNothingSelected(AdapterView<?> parent) {
             }
