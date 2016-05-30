@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -25,6 +26,7 @@ import android.view.ViewGroup;
 //import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 //import android.widget.TextView;
 
@@ -56,6 +58,7 @@ public class viewBottle extends AppCompatActivity {
     private String filter;
     private int pos;
     private int bottleId;
+    public static FloatingActionButton fab, fabReport;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +83,7 @@ public class viewBottle extends AppCompatActivity {
         mViewPager.setCurrentItem(pos);
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -94,6 +97,23 @@ public class viewBottle extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        fabReport = (FloatingActionButton) findViewById(R.id.fabReport);
+        fabReport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                bottleId = Bottles.get(mViewPager.getCurrentItem()).getId();
+                Snackbar.make(view, "Добавить репорт к " + bottleId, Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+
+                Intent intent = new Intent(viewBottle.this, addReport.class);
+                bottleId = Bottles.get(mViewPager.getCurrentItem()).getId();
+                intent.putExtra("bottleId", bottleId);
+                startActivity(intent);
+            }
+        });
+
+
     }
 
 
@@ -135,6 +155,7 @@ public class viewBottle extends AppCompatActivity {
         private TextView etSugar;
         private TextView etDate;
         private TextView etDescr, tvSrc1, tvSrc2;
+        private RatingBar rbStars;
 
         public PlaceholderFragment() {
         }
@@ -154,13 +175,15 @@ public class viewBottle extends AppCompatActivity {
 
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+        public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_bottle, container, false);
+            //View ParentView = inflater.inflate(R.layout.activity_view_bottle, container, false);
+
             //TextView tvLabel = (TextView) rootView.findViewById(R.id.section_label);
             ImageView ivPic = (ImageView) rootView.findViewById(R.id.ivPic);
             ivPic.setImageResource(getImage(getArguments().getInt(ARG_SECTION_NUMBER)));
-            Bottle bottle = viewBottle.Bottles.get(getArguments().getInt(ARG_SECTION_NUMBER));
+            final Bottle bottle = viewBottle.Bottles.get(getArguments().getInt(ARG_SECTION_NUMBER));
             //tvLabel.setText(bottle.getsId());
 
             //viewBottle.bottleId = bottle.getId() - 1;
@@ -173,6 +196,7 @@ public class viewBottle extends AppCompatActivity {
             etDescr = (TextView) rootView.findViewById(R.id.etDescr);
             tvSrc1 = (TextView) rootView.findViewById(R.id.tvSrc1);
             tvSrc2 = (TextView) rootView.findViewById(R.id.tvSrc2);
+            rbStars = (RatingBar) rootView.findViewById(R.id.rbStars);
 
             etSId.setText(bottle.getsId());
             etAlco.setText(String.valueOf(bottle.getAlco()));
@@ -182,8 +206,38 @@ public class viewBottle extends AppCompatActivity {
             SimpleDateFormat sdf = new SimpleDateFormat("d.MM.yy", Locale.getDefault());
             etDate.setText(sdf.format(bottle.getDate()));
             etDescr.setText(bottle.getDescription());
+            rbStars.setRating(bottle.getStars());
+            rbStars.setIsIndicator(true);
+            //rbStars.setClickable(true);
             tvSrc1.setVisibility(View.INVISIBLE);
             tvSrc2.setVisibility(View.INVISIBLE);
+            /*FloatingActionButton fabRep = (FloatingActionButton) container.findViewById(R.id.fabReport);
+
+            if(bottle.getReport() > 0) {
+                fabRep.setVisibility(View.VISIBLE);
+            }else{
+                fabRep.setVisibility(View.INVISIBLE);
+            }*/
+
+            rbStars.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                        int reports = bottle.getReport();
+                        if(reports > 0) {
+                            Snackbar.make(view, "Смотреть репортов: " + reports, Snackbar.LENGTH_LONG)
+                                    .setAction("Action", null).show();
+                            Intent intent = new Intent(getActivity(), viewReport.class);
+                            intent.putExtra("bottleId", bottle.getId());
+                            startActivity(intent);
+                        } else {
+                            Snackbar.make(view, "Нет отзывов", Snackbar.LENGTH_LONG)
+                                    .setAction("Action", null).show();
+                        }
+                    }
+                    return true;
+                }
+            });
 
             try {
                 if(bottle.getSource().length() == 2) {

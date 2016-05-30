@@ -1,8 +1,10 @@
 package ru.yamalinform.alkocalc44;
 
+import android.app.AlertDialog;
 import android.app.Application;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -36,11 +38,57 @@ public class alkosql extends SQLiteOpenHelper {
     private String CREATE_REPORTS_TABLE;
     private String CREATE_DICT_TABLE;
     private Context context;
+    private AlertDialog alert;
+    private Context app;
     //private SQLiteDatabase db;
+
+    private static final String TABLE_DICT = "dict";
+    public static final String KEY_DICT_ID = "_id";
+    private static final String KEY_DICT_TYPE = "type";
+    public static final String KEY_DICT_VALUE = "value";
+
+    private static final String TABLE_REPORTS = "reports";
+    public static final String KEY_REP_ID = "id";
+    public static final String KEY_REP_BID = "bId";
+    public static final String KEY_REP_DATE = "date";
+    public static final String KEY_REP_ALKACH = "alkach";
+    public static final String KEY_REP_STARS = "stars";
+    public static final String KEY_REP_TEXT = "report";
+
+    private static final String TABLE_BOTTLES = "bottles";
+
+    // Bottles Table Columns names
+    public static final String KEY_ID = "id";
+    private static final String KEY_SID = "sId";
+    private static final String KEY_VOLUME = "volume";
+    private static final String KEY_TYPE = "type";
+    private static final String KEY_SOURCE = "source";
+    private static final String KEY_ALKACH = "alkach";
+    private static final String KEY_DONE = "done";
+    private static final String KEY_ALCO = "alco";
+    private static final String KEY_SUGAR = "sugar";
+    private static final String KEY_PEREGON = "peregon";
+    private static final String KEY_DATE = "date";
+    private static final String KEY_TIMESTAMP = "timestamp";
+    private static final String KEY_DESCR = "description";
+
+    private static final String[] COLUMNS_DICT = {KEY_DICT_ID,KEY_DICT_TYPE,KEY_DICT_VALUE};
+
+    private static final String[] COLUMNS_REP = {KEY_REP_ID,KEY_REP_BID,KEY_REP_DATE,KEY_REP_ALKACH,KEY_REP_STARS,KEY_REP_TEXT};
+
+    private static final String[] COLUMNS = {KEY_ID,KEY_SID,KEY_VOLUME,KEY_TYPE,KEY_SOURCE,
+            KEY_ALKACH,KEY_DONE,KEY_ALCO,KEY_SUGAR,KEY_PEREGON,KEY_DATE,KEY_TIMESTAMP,KEY_DESCR};
+
 
     public alkosql(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = context;
+    }
+
+    public alkosql(Context context, Context app) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
+        this.app = app;
     }
 
     @Override
@@ -83,6 +131,7 @@ public class alkosql extends SQLiteOpenHelper {
         db.execSQL(CREATE_REPORTS_TABLE);
         db.execSQL(CREATE_DICT_TABLE);
         initDB(db);
+        //db.close();
     }
 
     @Override
@@ -93,14 +142,14 @@ public class alkosql extends SQLiteOpenHelper {
         switch (newVersion) {
             case 3:
                 db.execSQL("DROP TABLE IF EXISTS reports");
-                Log.d("_SQL", "Upgrade to 3");
+                Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
                 break;
             case 4:
                 db.beginTransaction();
                 db.execSQL("ALTER TABLE bottles ADD description");
                 db.setTransactionSuccessful();
                 db.endTransaction();
-                Log.d("_SQL", "Upgrade to 4");
+                Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
                 break;
             case 5:
                 db.beginTransaction();
@@ -110,7 +159,7 @@ public class alkosql extends SQLiteOpenHelper {
                 db.execSQL("UPDATE bottles SET date=date/1000");
                 db.setTransactionSuccessful();
                 db.endTransaction();
-                Log.d("_SQL", "Upgrade to 5");
+                Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
                 break;
             case 6:
                 db.beginTransaction();
@@ -122,7 +171,7 @@ public class alkosql extends SQLiteOpenHelper {
                 db.execSQL("UPDATE bottles SET type=1");
                 db.setTransactionSuccessful();
                 db.endTransaction();
-                Log.d("_SQL", "Upgrade to 6");
+                Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
                 break;
             case 7:
                 db.beginTransaction();
@@ -135,26 +184,51 @@ public class alkosql extends SQLiteOpenHelper {
                 }
                 db.setTransactionSuccessful();
                 db.endTransaction();
-                Log.d("_SQL", "Upgrade to 7");
+                Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
                 break;
             case 9:
                 db.beginTransaction();
+                alert = getDialog("Обновление БД до версии " + String.valueOf(newVersion));
+                alert.show();
                 if(oldVersion < 4) {
+                    alert.setMessage("ALTER TABLE bottles ADD description");
                     db.execSQL("ALTER TABLE bottles ADD description");
                 }else if (oldVersion < 5) {
+                    alert.setMessage("UPDATE bottles SET date=date/1000");
                     db.execSQL("UPDATE bottles SET date=date/1000");
                 }else if (oldVersion < 6){
+                    alert.setMessage("UPDATE bottles SET type=1");
                     db.execSQL("UPDATE bottles SET type=1");
                 }
+                alert.setMessage("Конвертирую исходники");
                 convertSrc(db);
+                alert.setMessage("Готово");
                 db.setTransactionSuccessful();
                 db.endTransaction();
-                Log.d("_SQL", "Upgrade to 9");
+                Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
+                alert.dismiss();
                 break;
         }
 
 
         this.onCreate(db);
+    }
+
+    private AlertDialog getDialog(String text) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(app);
+        builder.setTitle("Важное сообщение!")
+                .setMessage(text)
+                //.setIcon(R.drawable.ic_android_cat)
+                .setCancelable(false)
+                .setNegativeButton("закрыть",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+        AlertDialog alert = builder.create();
+        Log.d("_SQL", text);
+        return alert;
     }
 
     private void initDB(SQLiteDatabase db) {
@@ -167,7 +241,7 @@ public class alkosql extends SQLiteOpenHelper {
                 null, // g. order by
                 null); // h. limit
 
-        if(cursor.getCount() == 0){
+        if(cursor.getCount() == 0 && cursor != null){
             db.execSQL(initDict(TYPE_ALKO, "самогон"));
             db.execSQL(initDict(TYPE_ALKO, "коньяк"));
             db.execSQL(initDict(TYPE_ALKO, "граппа"));
@@ -180,37 +254,8 @@ public class alkosql extends SQLiteOpenHelper {
     }
 
     private String initDict(String type, String value) {
-        return "insert into " + TABLE_DICT + "(" + KEY_TYPE +"," + KEY_VALUE + ") values ('" + TYPE_ALKO + "','" + value + "')";
+        return "insert into " + TABLE_DICT + "(" + KEY_DICT_TYPE +"," + KEY_DICT_VALUE + ") values ('" + type + "','" + value + "')";
     }
-
-    private static final String TABLE_DICT = "dict";
-
-    // Bottles Table Columns names
-    public static final String KEY_DICT_ID = "_id";
-    //private static final String KEY_TYPE = "type";
-    public static final String KEY_VALUE = "value";
-
-    private static final String TABLE_BOTTLES = "bottles";
-
-    // Bottles Table Columns names
-    public static final String KEY_ID = "id";
-    private static final String KEY_SID = "sId";
-    private static final String KEY_VOLUME = "volume";
-    private static final String KEY_TYPE = "type";
-    private static final String KEY_SOURCE = "source";
-    private static final String KEY_ALKACH = "alkach";
-    private static final String KEY_DONE = "done";
-    private static final String KEY_ALCO = "alco";
-    private static final String KEY_SUGAR = "sugar";
-    private static final String KEY_PEREGON = "peregon";
-    private static final String KEY_DATE = "date";
-    private static final String KEY_TIMESTAMP = "timestamp";
-    private static final String KEY_DESCR = "description";
-
-    private static final String[] COLUMNS_DICT = {KEY_DICT_ID,KEY_TYPE,KEY_VALUE};
-
-    private static final String[] COLUMNS = {KEY_ID,KEY_SID,KEY_VOLUME,KEY_TYPE,KEY_SOURCE,
-            KEY_ALKACH,KEY_DONE,KEY_ALCO,KEY_SUGAR,KEY_PEREGON,KEY_DATE,KEY_TIMESTAMP,KEY_DESCR};
 
     public void convertSrc(SQLiteDatabase db) {
         List<Bottle> bottles = this.searchBottles(db, null);
@@ -251,8 +296,8 @@ public class alkosql extends SQLiteOpenHelper {
 
         // 2. create ContentValues to add key "column"/value
         ContentValues values = new ContentValues();
-        values.put(KEY_TYPE, type);
-        values.put(KEY_VALUE, value);
+        values.put(KEY_DICT_TYPE, type);
+        values.put(KEY_DICT_VALUE, value);
 
         // 3. insert
         db.beginTransaction();
@@ -271,7 +316,9 @@ public class alkosql extends SQLiteOpenHelper {
         Log.d("_SQL", query);
         // 2. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
-        return db.rawQuery(query, null);
+        Cursor res =db.rawQuery(query, null);
+        //db.close();
+        return res;
     }
 
     public Cursor searchDict(String type) {
@@ -279,7 +326,9 @@ public class alkosql extends SQLiteOpenHelper {
         Log.d("_SQL", query);
         // 2. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
-        return db.rawQuery(query, null);
+        Cursor res =db.rawQuery(query, null);
+        //db.close();
+        return res;
     }
 
     public String[] arrayDict(String type) {
@@ -290,7 +339,7 @@ public class alkosql extends SQLiteOpenHelper {
             cursor.moveToFirst();
             do{
                 //for(int i = 0; i < cursor.getCount(); i ++){
-                res.add(cursor.getString(cursor.getColumnIndex(KEY_VALUE)));
+                res.add(cursor.getString(cursor.getColumnIndex(KEY_DICT_VALUE)));
                 //}
             }while(cursor.moveToNext());
         }
@@ -299,7 +348,7 @@ public class alkosql extends SQLiteOpenHelper {
     }
 
     public String getDict(int id){
-
+        String res = null;
         // 1. get reference to readable DB
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -323,10 +372,11 @@ public class alkosql extends SQLiteOpenHelper {
             Log.d("getDict", "test");
 
             // 5. return book
-            return cursor.getString(2);
+            res = cursor.getString(2);
         }
 
-        return null;
+        db.close();
+        return res;
     }
 
     public void addBottle(Bottle bottle){
@@ -366,9 +416,12 @@ public class alkosql extends SQLiteOpenHelper {
 
         // 1. get reference to readable DB
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT  * FROM " +
-                TABLE_BOTTLES + " as b inner join " + TABLE_DICT + " as d on b.type=d._id " +
-                "where sid=?",
+        Cursor cursor = db.rawQuery("SELECT *,avg(r.stars) as stars, count(r.id) as report FROM " +
+                TABLE_BOTTLES + " as b left join " + TABLE_DICT + " as d on b.type=d._id " +
+                " left join reports r on b.id = r.bId " +
+                " where sid=?"+
+                " GROUP BY b.id" +
+                " ORDER BY b.date DESC",
                 new String[] {sid});
         // 2. build query
 /*        Cursor cursor =
@@ -382,6 +435,7 @@ public class alkosql extends SQLiteOpenHelper {
                         null); // h. limit*/
 
         // 3. if we got results get the first one
+
         if (cursor != null) {
             Log.d("_SQL", "total selected bottles: " + String.valueOf(cursor.getCount()));
             cursor.moveToFirst();
@@ -390,18 +444,22 @@ public class alkosql extends SQLiteOpenHelper {
             Log.d("getBottle("+sid+")", bottle.toString());
 
             // 5. return book
+            db.close();
             return bottle;
         }
-
+        db.close();
         return null;
     }
 
     public Bottle getBottle(SQLiteDatabase db, String sid){
 
         // 1. get reference to readable DB
-        Cursor cursor = db.rawQuery("SELECT  * FROM " +
-                        TABLE_BOTTLES + " as b inner join " + TABLE_DICT + " as d on b.type=d._id " +
-                        "where sid=?",
+        Cursor cursor = db.rawQuery("SELECT *, avg(r.stars) as stars, count(r.id) as report FROM " +
+                        TABLE_BOTTLES + " as b left join " + TABLE_DICT + " as d on b.type=d._id " +
+                        " left join reports r on b.id = r.bId " +
+                        " where sid=?"+
+                        " GROUP BY b.id" +
+                        " ORDER BY b.date DESC",
                 new String[] {sid});
         // 2. build query
 /*        Cursor cursor =
@@ -435,19 +493,15 @@ public class alkosql extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         // 2. build query
-        Cursor cursor = db.rawQuery("SELECT  * FROM " + TABLE_BOTTLES + " as b inner join " + TABLE_DICT + " as d on b.type=d._id "+
-                "where id=?",
+        Cursor cursor = db.rawQuery("SELECT *, avg(r.stars) as stars, count(r.id) as report FROM " +
+                TABLE_BOTTLES + " as b left join " + TABLE_DICT + " as d on b.type=d._id " +
+                " left join reports r on b.id = r.bId " +
+                " where b.id=?"+
+                " GROUP BY b.id" +
+                " ORDER BY b.date DESC",
                 new String[] {String.valueOf(id)});
-        /*Cursor cursor =
-                db.query(TABLE_BOTTLES, // a. table
-                        COLUMNS, // b. column names
-                        " id = ?", // c. selections
-                        new String[] { String.valueOf(id) }, // d. selections args
-                        null, // e. group by
-                        null, // f. having
-                        null, // g. order by
-                        null); // h. limit
-*/
+
+
         // 3. if we got results get the first one
         if (cursor != null && cursor.getCount() > 0) {
             Log.d("_SQL", "total selected bottles: " + String.valueOf(cursor.getCount()));
@@ -457,9 +511,10 @@ public class alkosql extends SQLiteOpenHelper {
             Log.d("getBottle("+id+")", bottle.toString());
 
             // 5. return book
+            db.close();
             return bottle;
         }
-
+        db.close();
         return null;
     }
 
@@ -480,8 +535,10 @@ public class alkosql extends SQLiteOpenHelper {
         Date date = new Date(cursor.getLong(10)*1000);
         bottle.setDate(date);
         bottle.setDescription(cursor.getString(12));
+        bottle.setStars(cursor.getFloat(cursor.getColumnIndex(KEY_REP_STARS)));
+        bottle.setReport(cursor.getInt(cursor.getColumnIndex(KEY_REP_TEXT)));
         Log.d("_SQL","end fillBottle");
-        //TODO: Add other field
+        //TODO: Use cursor.getColumnIndex()
 
         return bottle;
     }
@@ -516,8 +573,11 @@ public class alkosql extends SQLiteOpenHelper {
         }
 
         //String query = "SELECT  * FROM " + TABLE_BOTTLES + where + " ORDER BY " + KEY_DATE + " DESC";
-        String query = "SELECT  * FROM " + TABLE_BOTTLES + " as b inner join " + TABLE_DICT + " as d on b.type=d._id "
-                + where + " ORDER BY " + KEY_DATE + " DESC";
+        String query = "SELECT  *, avg(r.stars) as stars, count(r.id) as report FROM " +
+                TABLE_BOTTLES + " as b inner join " + TABLE_DICT + " as d on b.type=d._id " +
+                where +
+                " GROUP BY b.id" +
+                " ORDER BY b." + KEY_DATE + " DESC";
         Log.d("_SQL", query);
         // 2. get reference to writable DB
 
@@ -550,12 +610,17 @@ public class alkosql extends SQLiteOpenHelper {
         }
 
         //String query = "SELECT  * FROM " + TABLE_BOTTLES + where + " ORDER BY " + KEY_DATE + " DESC";
-        String query = "SELECT  * FROM " + TABLE_BOTTLES + " as b inner join " + TABLE_DICT + " as d on b.type=d._id "
-                + where + " ORDER BY " + KEY_DATE + " DESC";
+        String query = "SELECT  *, avg(r.stars) as stars, count(r.id) as report FROM " +
+                TABLE_BOTTLES + " as b left join " + TABLE_DICT + " as d on b.type=d._id " +
+                " left join reports r on b.id = r.bId " +
+                where +
+                " GROUP BY b.id" +
+                " ORDER BY b." + KEY_DATE + " DESC";
         Log.d("_SQL", query);
         // 2. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
+
 
         // 3. go over each row, build book and add it to list
         Bottle bottle = null;
@@ -570,6 +635,7 @@ public class alkosql extends SQLiteOpenHelper {
         Log.d("searchBottles()", bottles.toString());
 
         // return books
+        db.close();
         return bottles;
     }
 
@@ -581,8 +647,12 @@ public class alkosql extends SQLiteOpenHelper {
         String where = "where b.id=? or b.id=?";
 
         //String query = "SELECT  * FROM " + TABLE_BOTTLES + where + " ORDER BY " + KEY_DATE + " DESC";
-        String query = "SELECT  * FROM " + TABLE_BOTTLES + " as b inner join " + TABLE_DICT + " as d on b.type=d._id "
-                + where + " ORDER BY " + KEY_DATE + " DESC";
+        String query = "SELECT *, avg(r.stars) as stars, count(r.id) as report FROM " +
+                TABLE_BOTTLES + " as b left join " + TABLE_DICT + " as d on b.type=d._id " +
+                " left join reports r on b.id = r.bId " +
+                where +
+                " GROUP BY b.id" +
+                " ORDER BY b." + KEY_DATE + " DESC";
         Log.d("_SQL", query);
         // 2. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
@@ -601,6 +671,7 @@ public class alkosql extends SQLiteOpenHelper {
         Log.d("searchBottles()", bottles.toString());
 
         // return books
+        db.close();
         return bottles;
     }
 
@@ -658,15 +729,13 @@ public class alkosql extends SQLiteOpenHelper {
         values.put(KEY_DESCR, bottle.getDescription());
 
         // 3. updating row
-        db.beginTransaction();
         int i = db.update(TABLE_BOTTLES, //table
                 values, // column/value
                 KEY_ID+" = ?", // selections
                 new String[] { String.valueOf(bottle.getId()) }); //selection args
 
         // 4. close
-        db.setTransactionSuccessful();
-        db.endTransaction();
+
         //db.close();
 
         return i;
@@ -694,5 +763,109 @@ public class alkosql extends SQLiteOpenHelper {
         //log
         Log.d("deleteBottle", bottle.toString());
 
+    }
+
+    private Report fillReport(Cursor cursor) {
+        Report report = new Report();
+        Log.d("_SQL","start fillReport");
+        report.setId(cursor.getInt(cursor.getColumnIndex(KEY_REP_ID)));
+        Date date = new Date(cursor.getLong(cursor.getColumnIndex(KEY_REP_DATE))*1000);
+        report.setDate(date);
+        report.setAlkach(cursor.getString(cursor.getColumnIndex(KEY_REP_ALKACH)));
+        report.setStars(cursor.getInt(cursor.getColumnIndex(KEY_REP_STARS)));
+        report.setBottleId(cursor.getInt(cursor.getColumnIndex(KEY_REP_BID)));
+        report.setReport(cursor.getString(cursor.getColumnIndex(KEY_REP_TEXT)));
+        Log.d("_SQL","end fillReport");
+        //TODO: Add other field
+
+        return report;
+    }
+
+    public Report getReport(int id){
+
+        // 1. get reference to readable DB
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // 2. build query
+        Cursor cursor = db.rawQuery("SELECT r.id as id, r.date as date, r.alkach as alkach, r.stars as stars, r.report as report, r.bId as bId FROM " +
+                        TABLE_REPORTS + " as r " +
+                        " where r.id=?",
+                new String[] {String.valueOf(id)});
+
+
+        // 3. if we got results get the first one
+        if (cursor != null && cursor.getCount() > 0) {
+            Log.d("_SQL", "total reports: " + String.valueOf(cursor.getCount()));
+            cursor.moveToFirst();
+            Report report = fillReport(cursor);
+            //log
+            Log.d("getReport("+id+")", report.toString());
+
+            // 5. return book
+            db.close();
+            return report;
+        }
+        db.close();
+        return null;
+    }
+
+    public List<Report> searchReports(int bid){
+        List<Report> reports = new LinkedList<>();
+
+        // 1. build the query
+
+        String where = "where b.id=?";
+
+        //String query = "SELECT  * FROM " + TABLE_BOTTLES + where + " ORDER BY " + KEY_DATE + " DESC";
+        String query = "SELECT r.id as id, r.date as date, r.alkach as alkach, r.stars as stars, r.report as report, r.bId as bId FROM " +
+                TABLE_REPORTS + " as r left join " + TABLE_BOTTLES + " as b on r.bid=b.id " +
+                " left join " + TABLE_DICT + " d on b.type = d._id " +
+                where + " ORDER BY r." + KEY_REP_DATE + " DESC";
+        Log.d("_SQL", query);
+        // 2. get reference to writable DB
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, new String[] {String.valueOf(bid)});
+
+        // 3. go over each row, build book and add it to list
+        Report report = null;
+        if (cursor.moveToFirst()) {
+            do {
+                report = fillReport(cursor);
+                reports.add(report);
+            } while (cursor.moveToNext());
+        }
+
+        Log.d("searchReport()", reports.toString());
+
+        // return books
+        db.close();
+        return reports;
+    }
+
+    public void addReport(Report report){
+        //for logging
+        Log.d("addReport", report.toString());
+
+        // 1. get reference to writable DB
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // 2. create ContentValues to add key "column"/value
+        ContentValues values = new ContentValues();
+        values.put(KEY_REP_BID, report.getBottleId());
+        values.put(KEY_REP_ALKACH, report.getAlkach());
+        values.put(KEY_REP_DATE, String.valueOf(Math.round(report.getDate().getTime()/1000)));
+        values.put(KEY_REP_STARS, report.getStars());
+        values.put(KEY_REP_TEXT, report.getReport());
+
+        // 3. insert
+        db.beginTransaction();
+        db.insert(TABLE_REPORTS, // table
+                null, //nullColumnHack
+                values); // key/value -> keys = column names/ values = column values
+
+        // 4. close
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
     }
 }

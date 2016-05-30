@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                 //Snackbar.make(view, "Добавить бутыльку", Snackbar.LENGTH_LONG).setAction("Action", null).show();
             }
         });
-        db = new alkosql(getApplicationContext());
+        db = new alkosql(getApplicationContext(), MainActivity.this);
         lvBottles = (ListView) findViewById(R.id.lvBottles);
         listAdapter = new ArrayAdapter<>(this, R.layout.list_view, listBottles);
         //alkotype = getResources().getStringArray(R.array.alkotype);
@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                String[] from = new String[] {db.KEY_VALUE};
+                String[] from = new String[] {db.KEY_DICT_VALUE};
                 int[] to = new int[]{android.R.id.text1};
 
                 //MainActivity.this.listAdapter.getFilter().filter(newText);

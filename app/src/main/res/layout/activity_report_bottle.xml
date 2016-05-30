@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="ru.yamalinform.alkocalc44.reportBottle">
+    tools:context="ru.yamalinform.alkocalc44.viewReport">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar"
@@ -26,6 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/text_margin"
+                android:id="@+id/tvDescr"
                 android:text="@string/exp_text" />
 
             <android.support.v7.widget.Toolbar

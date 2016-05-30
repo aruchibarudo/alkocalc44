@@ -83,10 +83,9 @@ public class addBottle extends AppCompatActivity {
 
 
 //                FileSaver doWr = new FileSaver(getApplicationContext(), filename);
-                // TODO: Make add button with form for new Bottle
+
 
                 if (cbWrite.isChecked()) {
-                    // TODO: insert Bottle into table
 //                    Date date = new Date();
 //                    doWr.writeXml(date, tvOutput.getText().toString(), sType);
                     Log.d("MAIN", "Start add bottle");

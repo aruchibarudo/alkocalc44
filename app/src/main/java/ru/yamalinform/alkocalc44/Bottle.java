@@ -1,14 +1,12 @@
 package ru.yamalinform.alkocalc44;
 
 import android.util.Log;
-import android.widget.SeekBar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Date;
-import java.sql.SQLRecoverableException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -29,6 +27,8 @@ public class Bottle {
     private int peregon;
     private Date date, timestamp;
     private String description;
+    private float stars;
+    private int report;
 
     public Bottle(){
         timestamp = new Date(Calendar.getInstance().getTime().getTime());
@@ -177,6 +177,22 @@ public class Bottle {
             e.printStackTrace();
         }
         return res;
+    }
+
+    public float getStars() {
+        return this.stars;
+    }
+
+    public void setStars(float stars) {
+       this.stars = stars;
+    }
+
+    public int getReport() {
+        return report;
+    }
+
+    public void setReport(int report) {
+        this.report = report;
     }
 }
 
