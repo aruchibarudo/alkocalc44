@@ -341,6 +341,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getBottles(String filter) {
+        // TODO Возможно вынести в отдельный класс, пересмотреть listBottles??? оптимизировать
         Bottles = db.searchBottles(filter, this.order);
         Log.d("MAIN", "Size of Bottles: " + String.valueOf(Bottles.size()));
 
@@ -400,6 +401,7 @@ public class MainActivity extends AppCompatActivity {
 }
 
 class adapterBinder implements SimpleAdapter.ViewBinder {
+    // TODO Вынести класс в отдельный файл
     public boolean setViewValue(View view, Object data, String textRepresentation) {
         if(view.getId() == R.id.rbReport){
             float stars = (Float) data;
