@@ -57,6 +57,7 @@ public class viewBottle extends AppCompatActivity {
     private alkosql db;
     private String filter;
     private int pos;
+    private String order;
     private int bottleId;
     public static FloatingActionButton fab, fabReport;
 
@@ -70,8 +71,9 @@ public class viewBottle extends AppCompatActivity {
 
         filter = getIntent().getExtras().getString("filter");
         pos = getIntent().getExtras().getInt("pos");
+        order = getIntent().getExtras().getString("order");
         db = new alkosql(getApplicationContext());
-        Bottles = db.searchBottles(filter);
+        Bottles = db.searchBottles(filter, order);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.

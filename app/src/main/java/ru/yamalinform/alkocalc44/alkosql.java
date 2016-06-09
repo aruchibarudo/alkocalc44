@@ -1,27 +1,22 @@
 package ru.yamalinform.alkocalc44;
 
-import android.app.AlertDialog;
-import android.app.Application;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 
 import org.json.JSONException;
 
 import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by archy on 4/27/16.
@@ -30,7 +25,7 @@ public class alkosql extends SQLiteOpenHelper {
 
 
     // Database Version
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 12;
     public static final String TYPE_ALKO = "ALKO";
     // Database Name
     private static final String DATABASE_NAME = "alkodb";
@@ -38,7 +33,7 @@ public class alkosql extends SQLiteOpenHelper {
     private String CREATE_REPORTS_TABLE;
     private String CREATE_DICT_TABLE;
     private Context context;
-    private AlertDialog alert;
+    private ProgressDialog alert;
     private Context app;
     //private SQLiteDatabase db;
 
@@ -59,25 +54,31 @@ public class alkosql extends SQLiteOpenHelper {
 
     // Bottles Table Columns names
     public static final String KEY_ID = "id";
-    private static final String KEY_SID = "sId";
-    private static final String KEY_VOLUME = "volume";
-    private static final String KEY_TYPE = "type";
-    private static final String KEY_SOURCE = "source";
-    private static final String KEY_ALKACH = "alkach";
-    private static final String KEY_DONE = "done";
-    private static final String KEY_ALCO = "alco";
-    private static final String KEY_SUGAR = "sugar";
-    private static final String KEY_PEREGON = "peregon";
-    private static final String KEY_DATE = "date";
-    private static final String KEY_TIMESTAMP = "timestamp";
-    private static final String KEY_DESCR = "description";
+    public static final String KEY_SID = "sId";
+    public static final String KEY_VOLUME = "volume";
+    public static final String KEY_TYPE = "type";
+    public static final String KEY_SOURCE = "source";
+    public static final String KEY_ALKACH = "alkach";
+    public static final String KEY_DONE = "done";
+    public static final String KEY_ALCO = "alco";
+    public static final String KEY_SUGAR = "sugar";
+    public static final String KEY_PEREGON = "peregon";
+    public static final String KEY_DATE = "date";
+    public static final String KEY_TIMESTAMP = "timestamp";
+    public static final String KEY_DESCR = "description";
+    public static final String KEY_LOCATION = "location";
+    public static final String KEY_LOCATION_DESCR = "location_descr";
+    public static final String KEY_LAT = "lat";
+    public static final String KEY_LONG = "long";
 
     private static final String[] COLUMNS_DICT = {KEY_DICT_ID,KEY_DICT_TYPE,KEY_DICT_VALUE};
 
-    private static final String[] COLUMNS_REP = {KEY_REP_ID,KEY_REP_BID,KEY_REP_DATE,KEY_REP_ALKACH,KEY_REP_STARS,KEY_REP_TEXT};
+    private static final String[] COLUMNS_REP = {KEY_REP_ID,KEY_REP_BID,KEY_REP_DATE,
+            KEY_REP_ALKACH,KEY_REP_STARS,KEY_REP_TEXT};
 
     private static final String[] COLUMNS = {KEY_ID,KEY_SID,KEY_VOLUME,KEY_TYPE,KEY_SOURCE,
-            KEY_ALKACH,KEY_DONE,KEY_ALCO,KEY_SUGAR,KEY_PEREGON,KEY_DATE,KEY_TIMESTAMP,KEY_DESCR};
+            KEY_ALKACH,KEY_DONE,KEY_ALCO,KEY_SUGAR,KEY_PEREGON,KEY_DATE,KEY_TIMESTAMP,KEY_DESCR,
+            KEY_LOCATION,KEY_LOCATION_DESCR,KEY_LAT,KEY_LONG};
 
 
     public alkosql(Context context) {
@@ -107,7 +108,11 @@ public class alkosql extends SQLiteOpenHelper {
                 "peregon,"+
                 "date,"+
                 "description,"+
-                "timestamp"+
+                "timestamp,"+
+                "location,"+
+                "location_descr,"+
+                "lat,"+
+                "long"+
                 ")";
 
         CREATE_REPORTS_TABLE = "CREATE TABLE IF NOT EXISTS reports ( " +
@@ -138,97 +143,118 @@ public class alkosql extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older books table if existed
         //db.execSQL("DROP TABLE IF EXISTS bottles");
+        alert = new ProgressDialog(this.app);
+        alert.setTitle("Обновление БД до версии " + String.valueOf(newVersion));
+        alert.setMessage("Обновляем");
+        alert.setButton(Dialog.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        alert.show();
+        db.beginTransaction();
+        try {
+            switch (newVersion) {
+                case 3:
+                    db.execSQL("DROP TABLE IF EXISTS reports");
+                    Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
+                    break;
+                case 4:
+                    db.execSQL("ALTER TABLE bottles ADD description");
+                    Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
+                    break;
+                case 5:
+                    if(oldVersion < 4) {
+                        db.execSQL("ALTER TABLE bottles ADD description");
+                    }
+                    db.execSQL("UPDATE bottles SET date=date/1000");
+                    Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
+                    break;
+                case 6:
+                    if(oldVersion < 4) {
+                        db.execSQL("ALTER TABLE bottles ADD description");
+                    }else if (oldVersion < 5) {
+                        db.execSQL("UPDATE bottles SET date=date/1000");
+                    }
+                    db.execSQL("UPDATE bottles SET type=1");
+                    Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
+                    break;
+                case 7:
+                    if(oldVersion < 4) {
+                        db.execSQL("ALTER TABLE bottles ADD description");
+                    }else if (oldVersion < 5) {
+                        db.execSQL("UPDATE bottles SET date=date/1000");
+                    }else if (oldVersion < 6){
+                        db.execSQL("UPDATE bottles SET type=1");
+                    }
+                    Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
+                    break;
+                case 9:
+                    if(oldVersion < 4) {
+                        alert.setMessage("ALTER TABLE bottles ADD description");
+                        db.execSQL("ALTER TABLE bottles ADD description");
+                    }else if (oldVersion < 5) {
+                        alert.setMessage("UPDATE bottles SET date=date/1000");
+                        db.execSQL("UPDATE bottles SET date=date/1000");
+                    }else if (oldVersion < 6){
+                        alert.setMessage("UPDATE bottles SET type=1");
+                        db.execSQL("UPDATE bottles SET type=1");
+                    }
+                    alert.setMessage("Конвертирую исходники");
+                    convertSrc(db);
+                    alert.setMessage("Готово");
+                    Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
+                    break;
+                case 10:
 
-        switch (newVersion) {
-            case 3:
-                db.execSQL("DROP TABLE IF EXISTS reports");
-                Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
-                break;
-            case 4:
-                db.beginTransaction();
-                db.execSQL("ALTER TABLE bottles ADD description");
-                db.setTransactionSuccessful();
-                db.endTransaction();
-                Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
-                break;
-            case 5:
-                db.beginTransaction();
-                if(oldVersion < 4) {
-                    db.execSQL("ALTER TABLE bottles ADD description");
-                }
-                db.execSQL("UPDATE bottles SET date=date/1000");
-                db.setTransactionSuccessful();
-                db.endTransaction();
-                Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
-                break;
-            case 6:
-                db.beginTransaction();
-                if(oldVersion < 4) {
-                    db.execSQL("ALTER TABLE bottles ADD description");
-                }else if (oldVersion < 5) {
-                    db.execSQL("UPDATE bottles SET date=date/1000");
-                }
-                db.execSQL("UPDATE bottles SET type=1");
-                db.setTransactionSuccessful();
-                db.endTransaction();
-                Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
-                break;
-            case 7:
-                db.beginTransaction();
-                if(oldVersion < 4) {
-                    db.execSQL("ALTER TABLE bottles ADD description");
-                }else if (oldVersion < 5) {
-                    db.execSQL("UPDATE bottles SET date=date/1000");
-                }else if (oldVersion < 6){
-                    db.execSQL("UPDATE bottles SET type=1");
-                }
-                db.setTransactionSuccessful();
-                db.endTransaction();
-                Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
-                break;
-            case 9:
-                db.beginTransaction();
-                alert = getDialog("Обновление БД до версии " + String.valueOf(newVersion));
-                alert.show();
-                if(oldVersion < 4) {
-                    alert.setMessage("ALTER TABLE bottles ADD description");
-                    db.execSQL("ALTER TABLE bottles ADD description");
-                }else if (oldVersion < 5) {
-                    alert.setMessage("UPDATE bottles SET date=date/1000");
-                    db.execSQL("UPDATE bottles SET date=date/1000");
-                }else if (oldVersion < 6){
-                    alert.setMessage("UPDATE bottles SET type=1");
-                    db.execSQL("UPDATE bottles SET type=1");
-                }
-                alert.setMessage("Конвертирую исходники");
-                convertSrc(db);
-                alert.setMessage("Готово");
-                db.setTransactionSuccessful();
-                db.endTransaction();
-                Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
-                alert.dismiss();
-                break;
+                    if(oldVersion < 4) {
+                        alert.setMessage("ALTER TABLE bottles ADD description");
+                        db.execSQL("ALTER TABLE bottles ADD description");
+                    }else if(oldVersion < 5) {
+                        alert.setMessage("UPDATE bottles SET date=date/1000");
+                        db.execSQL("UPDATE bottles SET date=date/1000");
+                    }else if(oldVersion < 6){
+                        alert.setMessage("UPDATE bottles SET type=1");
+                        db.execSQL("UPDATE bottles SET type=1");
+                    }else if(oldVersion < 9) {
+                        alert.setMessage("Конвертирую исходники");
+                        convertSrc(db);
+                    }
+                    alert.setMessage("ALTER TABLE bottles ADD location,location_descr,lat,long");
+                    db.execSQL("ALTER TABLE bottles ADD location,location_descr,lat,long");
+                    alert.setMessage("Готово");
+                    Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
+                    break;
+                case 12:
+                    if(oldVersion < 4) {
+                        alert.setMessage("ALTER TABLE bottles ADD description");
+                        db.execSQL("ALTER TABLE bottles ADD description");
+                    }else if(oldVersion < 5) {
+                        alert.setMessage("UPDATE bottles SET date=date/1000");
+                        db.execSQL("UPDATE bottles SET date=date/1000");
+                    }else if(oldVersion < 6){
+                        alert.setMessage("UPDATE bottles SET type=1");
+                        db.execSQL("UPDATE bottles SET type=1");
+                    }else if(oldVersion < 9) {
+                        alert.setMessage("Конвертирую исходники");
+                        convertSrc(db);
+                    }else if(oldVersion < 10) {
+                        alert.setMessage("ALTER TABLE bottles ADD location,location_descr,lat,long");
+                        db.execSQL("ALTER TABLE bottles ADD location,location_descr,lat,long");
+                        alert.setMessage("Готово");
+                    }
+
+                    Log.d("_SQL", "Upgrade to " + String.valueOf(newVersion));
+                    break;
+            }
+        }catch (SQLiteException e){
+            db.endTransaction();
+            alert.setMessage("Что-то пошло не так :(");
+            e.printStackTrace();
         }
-
-
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        alert.setMessage("Обновлено :)");
         this.onCreate(db);
-    }
-
-    private AlertDialog getDialog(String text) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(app);
-        builder.setTitle("Важное сообщение!")
-                .setMessage(text)
-                //.setIcon(R.drawable.ic_android_cat)
-                .setCancelable(false)
-                .setNegativeButton("закрыть",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-        AlertDialog alert = builder.create();
-        Log.d("_SQL", text);
-        return alert;
     }
 
     private void initDB(SQLiteDatabase db) {
@@ -316,7 +342,7 @@ public class alkosql extends SQLiteOpenHelper {
         Log.d("_SQL", query);
         // 2. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res =db.rawQuery(query, null);
+        Cursor res = db.rawQuery(query, null);
         //db.close();
         return res;
     }
@@ -326,7 +352,7 @@ public class alkosql extends SQLiteOpenHelper {
         Log.d("_SQL", query);
         // 2. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res =db.rawQuery(query, null);
+        Cursor res = db.rawQuery(query, null);
         //db.close();
         return res;
     }
@@ -379,6 +405,16 @@ public class alkosql extends SQLiteOpenHelper {
         return res;
     }
 
+    public int getAlkotype(int alco) {
+        int res = 0;
+        if(alco > 7 && alco < 14) { res = 6; }
+        else if(alco > 14 && alco <= 25) { res = 5; }
+        else if(alco >= 40 && alco < 45) { res = 1; }
+        else if(alco >= 45 && alco < 55) { res = 0; }
+        else if(alco >= 55) { res = 4; }
+        return res;
+    }
+
     public void addBottle(Bottle bottle){
         //for logging
         Log.d("addBottle", bottle.toString());
@@ -395,8 +431,8 @@ public class alkosql extends SQLiteOpenHelper {
         values.put(KEY_ALCO, bottle.getAlco());
         values.put(KEY_SUGAR, bottle.getSugar());
         values.put(KEY_PEREGON, bottle.getPeregon());
-        values.put(KEY_DATE, String.valueOf(Math.round(bottle.getDate().getTime()/1000)));
-        values.put(KEY_TIMESTAMP, String.valueOf(Math.round(bottle.getTimeStamp().getTime()/1000)));
+        values.put(KEY_DATE, String.valueOf((int)Math.ceil((double)bottle.getDate().getTime()/1000)));
+        values.put(KEY_TIMESTAMP, String.valueOf((int)Math.ceil((double)bottle.getTimeStamp().getTime()/1000)));
         values.put(KEY_SOURCE, bottle.getSource().toString());
         values.put(KEY_DESCR, bottle.getDescription());
 
@@ -534,7 +570,7 @@ public class alkosql extends SQLiteOpenHelper {
         bottle.setPeregon(cursor.getInt(9));
         Date date = new Date(cursor.getLong(10)*1000);
         bottle.setDate(date);
-        bottle.setDescription(cursor.getString(12));
+        bottle.setDescription(cursor.getString(cursor.getColumnIndex(KEY_DESCR)));
         bottle.setStars(cursor.getFloat(cursor.getColumnIndex(KEY_REP_STARS)));
         bottle.setReport(cursor.getInt(cursor.getColumnIndex(KEY_REP_TEXT)));
         Log.d("_SQL","end fillBottle");
@@ -639,6 +675,46 @@ public class alkosql extends SQLiteOpenHelper {
         return bottles;
     }
 
+    public List<Bottle> searchBottles(String filter, String order){
+        List<Bottle> bottles = new LinkedList<>();
+
+        // 1. build the query
+
+        String where = "";
+        if (filter != null) {
+            where = makeFilter(filter);
+        }
+
+        //String query = "SELECT  * FROM " + TABLE_BOTTLES + where + " ORDER BY " + KEY_DATE + " DESC";
+        String query = "SELECT  *, avg(r.stars) as stars, count(r.id) as report FROM " +
+                TABLE_BOTTLES + " as b left join " + TABLE_DICT + " as d on b.type=d._id " +
+                " left join reports r on b.id = r.bId " +
+                where +
+                " GROUP BY b.id" +
+                " ORDER BY " + order + " DESC";
+        Log.d("_SQL", query);
+        // 2. get reference to writable DB
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+
+        // 3. go over each row, build book and add it to list
+        Bottle bottle = null;
+        if (cursor.moveToFirst()) {
+            do {
+                bottle = fillBottle(cursor);
+                // Add book to books
+                bottles.add(bottle);
+            } while (cursor.moveToNext());
+        }
+
+        Log.d("searchBottles()", bottles.toString());
+
+        // return books
+        db.close();
+        return bottles;
+    }
+
     public List<Bottle> searchBottles(int id1, int id2){
         List<Bottle> bottles = new LinkedList<>();
 
@@ -690,8 +766,8 @@ public class alkosql extends SQLiteOpenHelper {
         values.put(KEY_ALCO, bottle.getAlco());
         values.put(KEY_SUGAR, bottle.getSugar());
         values.put(KEY_PEREGON, bottle.getPeregon());
-        values.put(KEY_DATE, String.valueOf(Math.round(bottle.getDate().getTime()/1000)));
-        values.put(KEY_TIMESTAMP, String.valueOf(Math.round(bottle.getTimeStamp().getTime()/1000)));
+        values.put(KEY_DATE, String.valueOf((int)Math.ceil((double)bottle.getDate().getTime()/1000)));
+        values.put(KEY_TIMESTAMP, String.valueOf((int)Math.ceil((double)bottle.getTimeStamp().getTime()/1000)));
         values.put(KEY_SOURCE, bottle.getSource().toString());
         values.put(KEY_DESCR, bottle.getDescription());
 
@@ -723,8 +799,8 @@ public class alkosql extends SQLiteOpenHelper {
         values.put(KEY_ALCO, bottle.getAlco());
         values.put(KEY_SUGAR, bottle.getSugar());
         values.put(KEY_PEREGON, bottle.getPeregon());
-        values.put(KEY_DATE, String.valueOf(Math.round(bottle.getDate().getTime()/1000)));
-        values.put(KEY_TIMESTAMP, String.valueOf(Math.round(bottle.getTimeStamp().getTime()/1000)));
+        values.put(KEY_DATE, String.valueOf((int)Math.ceil((double)bottle.getDate().getTime()/1000)));
+        values.put(KEY_TIMESTAMP, String.valueOf((int)Math.ceil((double)bottle.getTimeStamp().getTime()/1000)));
         values.put(KEY_SOURCE, bottle.getSource().toString());
         values.put(KEY_DESCR, bottle.getDescription());
 

@@ -24,4 +24,17 @@
         android:orderInCategory="100"
         android:title="@string/action_cancel"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/mOrder"
+        android:orderInCategory="100"
+        android:title="Сортировать"
+        app:showAsAction="never">
+        <menu >
+            <group android:id="@+id/mOrderGroup" android:checkableBehavior="single">
+                <item android:id="@+id/mOrderByDate" android:title="По дате" />
+                <item android:id="@+id/mOrderByStars" android:title="По рейтингу" />
+                <item android:id="@+id/mOrderByType" android:title="По типу" />
+            </group>
+        </menu>
+    </item>
 </menu>

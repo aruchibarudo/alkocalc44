@@ -4,6 +4,7 @@ import android.app.SearchManager;
 import android.content.Intent;
 //import android.net.Uri;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.CursorAdapter;
@@ -18,26 +19,38 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CheckedTextView;
 import android.widget.ListView;
+import android.widget.RatingBar;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 //import com.google.android.gms.appindexing.Action;
 //import com.google.android.gms.appindexing.AppIndex;
 //import com.google.android.gms.common.api.GoogleApiClient;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private ArrayAdapter<String> listAdapter;
+    private SimpleAdapter listAdapter;
     private alkosql db;
     private List<Bottle> Bottles;
-    private ArrayList<String> listBottles = new ArrayList<>();
+    private ArrayList<HashMap<String, Object>> listBottles = new ArrayList<>();
     private ListView lvBottles;
     private String filter;
+    private String order = "b.date";
     private FloatingActionButton fab;
     private Menu menu;
     private SparseBooleanArray mixArray;
@@ -45,14 +58,7 @@ public class MainActivity extends AppCompatActivity {
     public Cursor cursorSugg;
     public CursorAdapter searchAdapter;
 
-
-
     final String LOG_TAG = "list_bottle";
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    //private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +78,19 @@ public class MainActivity extends AppCompatActivity {
         });
         db = new alkosql(getApplicationContext(), MainActivity.this);
         lvBottles = (ListView) findViewById(R.id.lvBottles);
-        listAdapter = new ArrayAdapter<>(this, R.layout.list_view, listBottles);
+        //listAdapter = new ArrayAdapter<>(this, R.layout.list_view, listBottles);
+        listAdapter = new SimpleAdapter(
+                MainActivity.this, listBottles,
+                R.layout.list_bottles, new String[]{alkosql.KEY_SID,
+                alkosql.KEY_DATE,
+                alkosql.KEY_REP_STARS},
+                new int[]{R.id.tvSid,
+                        R.id.tvDate,
+                        R.id.rbReport});
+        ((SimpleAdapter) listAdapter).setViewBinder(new adapterBinder());
         //alkotype = getResources().getStringArray(R.array.alkotype);
+        lvBottles.setAdapter(listAdapter);
+        listAdapter.notifyDataSetChanged();
 
         lvBottles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
@@ -82,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(getApplicationContext(), "itemClick: position = " + position + ", id = " + id, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(MainActivity.this, viewBottle.class);
                 intent.putExtra("filter", filter);
+                intent.putExtra("order", order);
                 intent.putExtra("pos", position);
                 startActivity(intent);
             }
@@ -97,9 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(LOG_TAG, "itemSelect: nothing");
             }
         });
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
     }
 
     @Override
@@ -114,12 +130,10 @@ public class MainActivity extends AppCompatActivity {
         final SearchView searchView = (SearchView) searchItem.getActionView();
 
 
-
-
         //searchView.setQuery(filter,false);
 
         SearchManager searchManager = (SearchManager) getSystemService(getApplicationContext().SEARCH_SERVICE);
-        if(null!=searchManager ) {
+        if (null != searchManager) {
             searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         }
         searchView.setIconifiedByDefault(false);
@@ -134,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onSuggestionClick(int position) {
                 cursorSugg.moveToPosition(position);
-                searchView.setQuery(cursorSugg.getString(2), false);
+                searchView.setQuery(cursorSugg.getString(2), true);
                 return false;
             }
         });
@@ -144,10 +158,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 //Toast.makeText(getApplicationContext(), query, Toast.LENGTH_SHORT);
-                if(query.length() > 2) {
+                if (query.length() > 2) {
                     filter = query;
                     getBottles(filter);
-                }else{
+                    listAdapter.notifyDataSetChanged();
+                } else {
                     Toast.makeText(getApplicationContext(), "Надо больше букв", Toast.LENGTH_SHORT).show();
                 }
 
@@ -156,12 +171,12 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                String[] from = new String[] {db.KEY_DICT_VALUE};
+                String[] from = new String[]{db.KEY_DICT_VALUE};
                 int[] to = new int[]{android.R.id.text1};
 
                 //MainActivity.this.listAdapter.getFilter().filter(newText);
                 cursorSugg = db.searchDict(db.TYPE_ALKO, newText);
-                searchAdapter = new SimpleCursorAdapter(getApplicationContext(), android.R.layout.simple_list_item_1, cursorSugg,from,to,CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+                searchAdapter = new SimpleCursorAdapter(getApplicationContext(), android.R.layout.simple_list_item_1, cursorSugg, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
                 searchView.setSuggestionsAdapter(searchAdapter);
                 searchAdapter.notifyDataSetChanged();
                 return false;
@@ -178,8 +193,19 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.mCoupage:
 
-                listAdapter = new ArrayAdapter<>(this, R.layout.list_checked, listBottles);
+                //listAdapter = new ArrayAdapter<>(this, R.layout.list_checked, listBottles);
+                listAdapter = new SimpleAdapter(
+                        MainActivity.this, listBottles,
+                        R.layout.list_bottles_check, new String[]{alkosql.KEY_SID,
+                        alkosql.KEY_DATE,
+                        alkosql.KEY_REP_STARS},
+                        new int[]{R.id.tvSid,
+                                R.id.tvDate,
+                                R.id.rbReport});
+                ((SimpleAdapter) listAdapter).setViewBinder(new adapterBinder());
                 getBottles(filter);
+                lvBottles.setAdapter(listAdapter);
+                listAdapter.notifyDataSetChanged();
 
 
                 lvBottles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -187,12 +213,32 @@ public class MainActivity extends AppCompatActivity {
                                             int position, long id) {
                         Log.d(LOG_TAG, "itemClick: position = " + position + ", id = " + id);
                         //Toast.makeText(getApplicationContext(), "itemClick: position = " + position + ", id = " + id, Toast.LENGTH_SHORT).show();
-                        mixArray = lvBottles.getCheckedItemPositions();
-                        Log.d("TO_MIX", mixArray.toString());
-                        if(lvBottles.getCheckedItemCount() > 2) {
+
+                        if (lvBottles.getCheckedItemCount() > 2) {
                             Toast.makeText(getApplicationContext(), "Нельзя купажировать больше двух", Toast.LENGTH_SHORT).show();
                             lvBottles.setItemChecked(position, false);
+                        }else{
+
+                            //CheckedTextView cbMix = (CheckedTextView) lvBottles.getSelectedView();
+                            // TODO: Починить проблему с выбором при смешиваниии (выбирается 3)
+                            if(lvBottles.isItemChecked(position)) {
+                                CheckedTextView v = (CheckedTextView) lvBottles.getChildAt(position).findViewById(R.id.img);
+                                v.setChecked(true);
+                            }else{
+                                CheckedTextView v = (CheckedTextView) lvBottles.getChildAt(position).findViewById(R.id.img);
+                                v.setChecked(false);
+                            }
                         }
+                        mixArray = lvBottles.getCheckedItemPositions();
+                        if (mixArray != null) {
+                            for (int i = 0; i < mixArray.size(); i++) {
+                                if(!mixArray.valueAt(i)) {
+                                    mixArray.delete(mixArray.keyAt(i));
+                                }
+                            }
+                        }
+                        Log.d("TO_MIX", mixArray.toString());
+
                         /*Intent intent = new Intent(MainActivity.this, viewBottle.class);
                         intent.putExtra("filter", filter);
                         intent.putExtra("pos", position);
@@ -204,15 +250,17 @@ public class MainActivity extends AppCompatActivity {
                 fab.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if(mixArray!=null && mixArray.size() == 2) {
+
+                        if(mixArray.size() == 2) {
                             Intent intent = new Intent(MainActivity.this, mixBottle.class);
-                            for(int i=0; i<mixArray.size(); i++) {
-                                Log.d("TO_MIX", "id" + String.valueOf(i+1) + ":" + String.valueOf(Bottles.get(mixArray.keyAt(i)).getId()));
-                                intent.putExtra("id" + String.valueOf(i+1), Bottles.get(mixArray.keyAt(i)).getId());
+                            for (int i = 0; i < mixArray.size(); i++) {
+                                if(mixArray.valueAt(i)) {
+                                    Log.d("TO_MIX", "id" + String.valueOf(i+1) + ":" + String.valueOf(Bottles.get(mixArray.keyAt(i)).getId()));
+                                    intent.putExtra("id" + String.valueOf(i+1), Bottles.get(mixArray.keyAt(i)).getId());
+                                }
                             }
-                            //intent.putExtra("id1", )
                             startActivity(intent);
-                        }else {
+                        } else {
                             Toast.makeText(getApplicationContext(), "Минимум две бутылки", Toast.LENGTH_LONG).show();
                         }
 
@@ -234,8 +282,19 @@ public class MainActivity extends AppCompatActivity {
                         //Snackbar.make(view, "Добавить бутыльку", Snackbar.LENGTH_LONG).setAction("Action", null).show();
                     }
                 });
-                listAdapter = new ArrayAdapter<>(this, R.layout.list_view, listBottles);
+                //listAdapter = new ArrayAdapter<>(this, R.layout.list_view, listBottles);
+                listAdapter = new SimpleAdapter(
+                        MainActivity.this, listBottles,
+                        R.layout.list_bottles, new String[]{alkosql.KEY_SID,
+                        alkosql.KEY_DATE,
+                        alkosql.KEY_REP_STARS},
+                        new int[]{R.id.tvSid,
+                                R.id.tvDate,
+                                R.id.rbReport});
+                ((SimpleAdapter) listAdapter).setViewBinder(new adapterBinder());
                 getBottles(filter);
+                lvBottles.setAdapter(listAdapter);
+                listAdapter.notifyDataSetChanged();
 
                 lvBottles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     public void onItemClick(AdapterView<?> parent, View view,
@@ -256,72 +315,101 @@ public class MainActivity extends AppCompatActivity {
             case R.id.mSearchCancel:
                 filter = "";
                 getBottles(filter);
+                listAdapter.notifyDataSetChanged();
+                break;
+            case R.id.mOrderByStars:
+                if (item.isChecked()) item.setChecked(false);
+                else item.setChecked(true);
+                order = db.KEY_REP_STARS;
+                getBottles(filter);
+                listAdapter.notifyDataSetChanged();
+                break;
+            case R.id.mOrderByDate:
+                if (item.isChecked()) item.setChecked(false);
+                else item.setChecked(true);
+                order = "b." + db.KEY_DATE;
+                getBottles(filter);
+                listAdapter.notifyDataSetChanged();
+                break;
+            case R.id.mOrderByType:
+                if (item.isChecked()) item.setChecked(false);
+                else item.setChecked(true);
+                order = "d." + db.KEY_DICT_VALUE;
+                getBottles(filter);
+                listAdapter.notifyDataSetChanged();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
 
     private void getBottles(String filter) {
-        Bottles = db.searchBottles(filter);
+        Bottles = db.searchBottles(filter, this.order);
         Log.d("MAIN", "Size of Bottles: " + String.valueOf(Bottles.size()));
 
-        listAdapter.clear();
+        listBottles.clear();
+        HashMap<String, Object> hm;
+        SimpleDateFormat sdf = new SimpleDateFormat("d.MM.yy", Locale.getDefault());
 
         for (int i = 0; i < Bottles.size(); i++) {
-            listAdapter.add(Bottles.get(i).getsId());
+            hm = new HashMap<>();
+            hm.put(alkosql.KEY_SID, Bottles.get(i).getsId());
+            //Log.d("VIEW_REP", reports.get(i).getAlkach().toString());
+            hm.put(alkosql.KEY_DATE, Bottles.get(i).getDate().toString());
+            hm.put(alkosql.KEY_REP_STARS, Bottles.get(i).getStars());
+            //hm.put(alkosql.KEY_REP_TEXT,reports.get(i).getReport());
+            listBottles.add(hm);
         }
-        Log.d("MAIN", "Size of listAdapter: " + String.valueOf(listAdapter.getCount()));
-        try {
-            lvBottles.setAdapter(listAdapter);
-        } catch (Exception e) {
-            Log.e(LOG_TAG, e.toString());
+    }
+
+    private void getBottles(String filter, String order) {
+        Bottles = db.searchBottles(filter, order);
+        Log.d("MAIN", "Size of Bottles: " + String.valueOf(Bottles.size()));
+
+        listBottles.clear();
+        HashMap<String, Object> hm;
+        SimpleDateFormat sdf = new SimpleDateFormat("d.MM.yy", Locale.getDefault());
+
+        for (int i = 0; i < Bottles.size(); i++) {
+            hm = new HashMap<>();
+            hm.put(alkosql.KEY_SID, Bottles.get(i).getsId());
+            //Log.d("VIEW_REP", reports.get(i).getAlkach().toString());
+            hm.put(alkosql.KEY_DATE, Bottles.get(i).getDate().toString());
+            hm.put(alkosql.KEY_REP_STARS, Bottles.get(i).getStars());
+            //hm.put(alkosql.KEY_REP_TEXT,reports.get(i).getReport());
+            listBottles.add(hm);
         }
     }
 
     @Override
     public void onStart() {
         super.onStart();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        /*client.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://ru.yamalinform.alkocalc44/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(client, viewAction);*/
     }
 
     @Override
     public void onStop() {
         super.onStop();
-/*
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://ru.yamalinform.alkocalc44/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(client, viewAction);
-        client.disconnect();*/
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         Log.d("MAIN", "onResume()");
-        lvBottles.clearChoices();
+        //lvBottles.clearChoices();
         getBottles(filter);
+        listAdapter.notifyDataSetChanged();
+    }
+}
+
+class adapterBinder implements SimpleAdapter.ViewBinder {
+    public boolean setViewValue(View view, Object data, String textRepresentation) {
+        if(view.getId() == R.id.rbReport){
+            float stars = (Float) data;
+            //float ratingValue = Float.parseFloat(stringval);
+            RatingBar ratingBar = (RatingBar) view;
+            ratingBar.setRating(stars);
+            return true;
+        }
+        return false;
     }
 }

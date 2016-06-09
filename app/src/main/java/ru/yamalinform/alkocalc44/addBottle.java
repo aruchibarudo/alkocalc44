@@ -1,6 +1,7 @@
 package ru.yamalinform.alkocalc44;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -62,6 +63,7 @@ public class addBottle extends AppCompatActivity {
 
         if(getIntent().getExtras() != null && getIntent().getExtras().size() == 3) {
             etAlco.setText(getIntent().getExtras().getString("alco"));
+            spAlkotype.setSelection(db.getAlkotype(Integer.valueOf(getIntent().getExtras().getString("alco"))));
             etVolume.setText(getIntent().getExtras().getString("volume"));
             source = getIntent().getExtras().getString("source");
         }else {
