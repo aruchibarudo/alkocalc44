@@ -189,7 +189,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // TODO Auto-generated method stub
         switch (item.getItemId()) {
             case R.id.mCoupage:
 
@@ -220,7 +219,6 @@ public class MainActivity extends AppCompatActivity {
                         }else{
 
                             //CheckedTextView cbMix = (CheckedTextView) lvBottles.getSelectedView();
-                            // TODO: Починить проблему с выбором при смешиваниии (выбирается 3)
                             if(lvBottles.isItemChecked(position)) {
                                 CheckedTextView v = (CheckedTextView) lvBottles.getChildAt(position).findViewById(R.id.img);
                                 v.setChecked(true);

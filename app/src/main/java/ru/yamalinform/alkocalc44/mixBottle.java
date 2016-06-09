@@ -167,6 +167,7 @@ public class mixBottle extends AppCompatActivity {
     }
 
     public void doMix(String sGr1, String sGr2, String sMaxVolume, int iMax, int iPos) {
+        // TODO Сделать расчет сахара
         Toast toast = new Toast(getApplicationContext());
         if (sGr1.isEmpty() || sGr2.isEmpty() || sMaxVolume.isEmpty()) {
             toast.makeText(getApplicationContext(),"Поля не должны быть пустыми",Toast.LENGTH_LONG).show();

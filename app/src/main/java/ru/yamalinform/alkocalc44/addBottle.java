@@ -37,6 +37,7 @@ public class addBottle extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // TODO Генерировать SID по типу (уточнить у @lehichu)
         final EditText etSId = (EditText) findViewById(R.id.sId);
         final EditText etAlco = (EditText) findViewById(R.id.alco);
         final EditText etVolume = (EditText) findViewById(R.id.volume);

@@ -12,4 +12,6 @@
     tools:context="ru.yamalinform.alkocalc44.MainMenu"
     tools:showIn="@layout/app_bar_main_menu">
 
+    <include layout="@layout/content_list_bottle" />
+
 </RelativeLayout>
