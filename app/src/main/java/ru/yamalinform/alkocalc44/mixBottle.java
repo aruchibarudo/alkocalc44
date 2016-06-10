@@ -26,6 +26,7 @@ public class mixBottle extends AppCompatActivity {
     private String sid1, sid2;
     private int id1, id2;
     private double dGrad;
+    private int action;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,38 +46,43 @@ public class mixBottle extends AppCompatActivity {
 
         //sid1 = getIntent().getExtras().getString("sid1");
         //sid2 = getIntent().getExtras().getString("sid2");
-        id1 = getIntent().getExtras().getInt("id1");
-        id2 = getIntent().getExtras().getInt("id2");
+        action = getIntent().getExtras().getInt("action");
+        if(action == R.id.nav_mix) {
+            btnOK.setEnabled(false);
+        }else if(action == R.id.btnMixOK){
+            id1 = getIntent().getExtras().getInt("id1");
+            id2 = getIntent().getExtras().getInt("id2");
+            db = new alkosql(getApplicationContext());
 
-        db = new alkosql(getApplicationContext());
+            final Bottle b1 = db.getBottle(id1);
+            final Bottle b2 = db.getBottle(id2);
+            Log.d("DO_MIX", "id1: " + b1.getsId());
+            Log.d("DO_MIX", "id2: " + b2.getsId());
+            tvB1id.setText(b1.getsId());
+            tvB2id.setText(b2.getsId());
+            etGrad1.setText(String.valueOf(b1.getAlco()));
+            etGrad2.setText(String.valueOf(b2.getAlco()));
 
-        final Bottle b1 = db.getBottle(id1);
-        final Bottle b2 = db.getBottle(id2);
-        Log.d("DO_MIX", "id1: " + b1.getsId());
-        Log.d("DO_MIX", "id2: " + b2.getsId());
-        tvB1id.setText(b1.getsId());
-        tvB2id.setText(b2.getsId());
-        etGrad1.setText(String.valueOf(b1.getAlco()));
-        etGrad2.setText(String.valueOf(b2.getAlco()));
+            btnOK.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    iGrad = (int) Math.round(dGrad);
+                    Log.d("MIX_BOTTLE", String.valueOf(iGrad));
+                    Bottle bMix = new Bottle();
+                    bMix.setAlco(iGrad);
+                    b1.setVolume(iVol1);
+                    b2.setVolume(iVol2);
+                    String source = bMix.makeCoupage(b1, b2);
 
-        btnOK.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                iGrad = (int) Math.round(dGrad);
-                Log.d("MIX_BOTTLE", String.valueOf(iGrad));
-                Bottle bMix = new Bottle();
-                bMix.setAlco(iGrad);
-                b1.setVolume(iVol1);
-                b2.setVolume(iVol2);
-                String source = bMix.makeCoupage(b1, b2).toString();
+                    Intent intent = new Intent(mixBottle.this, addBottle.class);
+                    intent.putExtra("alco", String.valueOf(iGrad));
+                    intent.putExtra("source", source);
+                    intent.putExtra("volume", etMaxVolume.getText().toString());
+                    startActivity(intent);
+                }
+            });
 
-                Intent intent = new Intent(mixBottle.this, addBottle.class);
-                intent.putExtra("alco", String.valueOf(iGrad));
-                intent.putExtra("source", source);
-                intent.putExtra("volume", etMaxVolume.getText().toString());
-                startActivity(intent);
-            }
-        });
+        }
 
         etGrad1.setOnFocusChangeListener(new EditText.OnFocusChangeListener() {
 

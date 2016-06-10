@@ -2,9 +2,13 @@ package ru.yamalinform.alkocalc44;
 
 import android.content.Context;
 import android.util.Log;
-import android.util.Xml;
 
-import org.xmlpull.v1.XmlSerializer;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -12,8 +16,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.StringWriter;
-import java.util.Date;
+import java.lang.reflect.Type;
+import java.sql.Date;
+import java.util.List;
 
 /**
  * Created by archy on 4/27/16.
@@ -78,23 +83,36 @@ public class FileSaver {
 
 
 
-    public void writeXml(Date time, String msg, String type){
-        XmlSerializer serializer = Xml.newSerializer();
-        StringWriter writer = new StringWriter();
+    public void writeJSON(List<Bottle> bottles){
+        String res;
+
+/*        GsonBuilder gsonBuilder;
+        gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(Date.class, DateSerializer.class);
+        gsonBuilder.setDateFormat("d.mm.YY");*/
+        Gson gson = new GsonBuilder()
+                //.registerTypeAdapter(Date.class, DateSerializer.class)
+                .setDateFormat("dd.MM.yyyy HH:mm:ss")
+                .setPrettyPrinting()
+                .create();
+
+
         try {
-            serializer.setOutput(writer);
-            serializer.startDocument("UTF-8", true);
-            serializer.startTag("", "items");
-            serializer.startTag("", "item");
-            serializer.attribute("", "timestamp", String.valueOf(time.getTime()));
-            serializer.attribute("", "type", type);
-            serializer.text(msg);
-            serializer.endTag("", "item");
-            serializer.endTag("", "items");
-            serializer.endDocument();
-            this.write(writer.toString());
+            BottleList bList = new BottleList();
+            for (Bottle b: bottles) {
+                bList.add(b);
+            }
+            res = gson.toJson(bList);
+            write(res);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            Log.d("FileSaver", "Что-то пошло не так");
+            e.printStackTrace();
+        }
+    }
+
+    private class DateSerializer implements JsonSerializer<Date> {
+        public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive(src.toString());
         }
     }
 }

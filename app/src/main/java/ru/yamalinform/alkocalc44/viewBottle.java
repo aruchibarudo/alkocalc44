@@ -33,6 +33,8 @@ import android.widget.TextView;
 import org.json.JSONException;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -227,8 +229,6 @@ public class viewBottle extends AppCompatActivity {
                     if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
                         int reports = bottle.getReport();
                         if(reports > 0) {
-                            Snackbar.make(view, "Смотреть репортов: " + reports, Snackbar.LENGTH_LONG)
-                                    .setAction("Action", null).show();
                             Intent intent = new Intent(getActivity(), viewReport.class);
                             intent.putExtra("bottleId", bottle.getId());
                             startActivity(intent);
@@ -241,43 +241,73 @@ public class viewBottle extends AppCompatActivity {
                 }
             });
 
-            try {
-                if(bottle.getSource().length() == 2) {
-                    alkosql db = new alkosql(getContext());
-                    int src1 = bottle.getSource().getJSONObject(0).getInt("id");
-                    String vol1 = bottle.getSource().getJSONObject(0).getString("volume");
-                    Log.d("VIEW_BOTTLE", String.valueOf(src1));
-                    Bottle b1 = db.getBottle(src1);
-                    if (b1!=null){
-                        tvSrc1.setText(b1.getsId() + ": " + vol1 + "мл");
-                        tvSrc1.setVisibility(View.VISIBLE);
-                    }else{
-                        tvSrc1.setText("Исходник " + String.valueOf(src1) + " в базе не найден");
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            tvSrc1.setTextAppearance(android.R.style.TextAppearance_Small);
-                        }
-                        tvSrc1.setTextColor(Color.BLUE);
-                        tvSrc1.setVisibility(View.VISIBLE);
+            tvSrc1.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                        int id = bottle.getSource().get(0).getId();
+                        Snackbar.make(view, "Смотреть родителя: " + id, Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+                        //Intent intent = new Intent(getActivity(), viewReport.class);
+                        //intent.putExtra("bottleId", bottle.getId());
+                        //startActivity(intent);
                     }
-                    int src2 = bottle.getSource().getJSONObject(1).getInt("id");
-                    String vol2 = bottle.getSource().getJSONObject(1).getString("volume");
-                    Log.d("VIEW_BOTTLE", String.valueOf(src2));
-                    Bottle b2 = db.getBottle(src2);
-                    if (b2!=null){
-                        tvSrc2.setText(b2.getsId() + ": " + vol2 + "мл");
-                        tvSrc2.setVisibility(View.VISIBLE);
-                    }else{
-                        tvSrc2.setText("Исходник " + String.valueOf(src2) + " в базе не найден");
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            tvSrc2.setTextAppearance(android.R.style.TextAppearance_Small);
-                        }
-                        tvSrc2.setTextColor(Color.BLUE);
-                        tvSrc2.setVisibility(View.VISIBLE);
-                    }
+                    return true;
                 }
-            }catch (JSONException e) {
-                Log.e("VIEW_BOTTLE", e.getMessage());
-                e.printStackTrace();
+            });
+
+            tvSrc2.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                        int id = bottle.getSource().get(1).getId();
+                        Snackbar.make(view, "Смотреть родителя: " + id, Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+                        //Intent intent = new Intent(getActivity(), viewReport.class);
+                        //intent.putExtra("bottleId", bottle.getId());
+                        //startActivity(intent);
+                    }
+                    return true;
+                }
+            });
+
+            if(bottle.getSource().size() == 2) {
+                alkosql db = new alkosql(getContext());
+                ArrayList<Source> src = bottle.getSource();
+
+                int src1 =  src.get(0).getId();
+                Integer vol1 = src.get(0).getVolume();
+
+                int src2 =  src.get(1).getId();
+                Integer vol2 = src.get(1).getVolume();
+
+                Log.d("VIEW_BOTTLE", String.valueOf(src.get(0).getId()));
+                Bottle b1 = db.getBottle(src1);
+                if (b1!=null){
+                    tvSrc1.setText(b1.getsId() + ": " + vol1.toString() + "мл");
+                    tvSrc1.setVisibility(View.VISIBLE);
+                }else{
+                    tvSrc1.setText("Исходник " + String.valueOf(src1) + " в базе не найден");
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        tvSrc1.setTextAppearance(android.R.style.TextAppearance_Small);
+                    }
+                    tvSrc1.setTextColor(Color.BLUE);
+                    tvSrc1.setVisibility(View.VISIBLE);
+                }
+                Log.d("VIEW_BOTTLE", String.valueOf(src2));
+                Bottle b2 = db.getBottle(src2);
+                if (b2!=null){
+                    tvSrc2.setText(b2.getsId() + ": " + vol2 + "мл");
+                    tvSrc2.setVisibility(View.VISIBLE);
+                }else{
+                    tvSrc2.setText("Исходник " + String.valueOf(src2) + " в базе не найден");
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        tvSrc2.setTextAppearance(android.R.style.TextAppearance_Small);
+                    }
+                    tvSrc2.setTextColor(Color.BLUE);
+                    tvSrc2.setVisibility(View.VISIBLE);
+                }
+
             }
 
             tvSrc1.setOnClickListener(new View.OnClickListener() {
@@ -286,7 +316,6 @@ public class viewBottle extends AppCompatActivity {
 
                 }
             });
-
 
             return rootView;
         }

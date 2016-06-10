@@ -2,13 +2,20 @@ package ru.yamalinform.alkocalc44;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.Array;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by archy on 4/27/16.
@@ -19,7 +26,8 @@ public class Bottle {
     private String Stype;
     private int volume;
     private int type;
-    private JSONArray source;
+    private JSONArray source1;
+    private ArrayList<Source> source;
     private String alkach = "lehichu@gmail.com";
     private boolean done;
     private int alco;
@@ -91,7 +99,7 @@ public class Bottle {
 
     public Date getDate() { return date; }
 
-    public JSONArray getSource() { return source; }
+    public ArrayList<Source> getSource() { return source; }
 
     public int calcGradus(int iGr1, int iGr2, int iVolume, int progress) {
         int iMax = 100;
@@ -127,15 +135,20 @@ public class Bottle {
     }
 
     public void setSource(String source) {
-        if(!source.equals("")) {
-            try {
-                this.source = new JSONArray(source);
-            } catch (JSONException e) {
-                Log.d("BOTTLE: " + source, e.getMessage());
-                e.printStackTrace();
-            }
-        }
+        Gson gson = new Gson();
+        this.source = new ArrayList<>();
+        Log.d("BOTTLE", source);
+        /*this.source = gson.fromJson(source, Source.class);
+        this.source = new ArrayList<Source>();
+        this.source.add(new Source(3, 100));
+        this.source.add(new Source(4, 500));*/
 
+        JsonParser parser = new JsonParser();
+        JsonArray array = parser.parse(source).getAsJsonArray();
+        //Source src1 = gson.fromJson(array.get(0), Source.class);
+        //Source src2 = gson.fromJson(array.get(1), Source.class);
+        this.source.add(gson.fromJson(array.get(0), Source.class));
+        if(array.size() == 2) this.source.add(gson.fromJson(array.get(1), Source.class));
     }
 
     public void setSugar(int sugar) { this.sugar = sugar; }
@@ -148,35 +161,19 @@ public class Bottle {
 
     public void setTimeStamp(Date timestamp) { this.timestamp = timestamp; }
 
-    public JSONArray makeCoupage(ArrayList<Bottle> bottles) {
-        String res = "";
-        JSONArray jsonA = null;
-
-        try {
-            jsonA = new JSONArray();
-            for (int i = 0; i < bottles.size(); i++) {
-                jsonA.put(i,new JSONObject("{id:" + String.valueOf(bottles.get(i).getsId()) +
-                        ",volume:" + String.valueOf(bottles.get(i).getVolume())+"}"));
-            }
-            this.source = jsonA;
-        } catch (JSONException e) {
-            e.printStackTrace();
+    public String makeCoupage(ArrayList<Bottle> bottles) {
+        this.source = new ArrayList<>();
+        for (int i = 0; i < bottles.size(); i++) {
+            source.add(new Source(bottles.get(i).getId(), bottles.get(i).getVolume()));
         }
-
-        return jsonA;
+        return new Gson().toJson(this.source);
     }
 
-    public JSONArray makeCoupage(Bottle b1, Bottle b2) {
-        JSONArray res = null;
-
-        try {
-            res = new JSONArray("[{id:" + String.valueOf(b1.getId()) + ",volume:" + String.valueOf(b1.getVolume())+"}," +
-                    "{id:" + String.valueOf(b2.getId()) + ",volume:" + String.valueOf(b2.getVolume())+"}]");
-            this.source = res;
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return res;
+    public String makeCoupage(Bottle b1, Bottle b2) {
+        this.source = new ArrayList<>();
+        source.add(new Source(b1.getId(), b1.getVolume()));
+        source.add(new Source(b2.getId(), b2.getVolume()));
+        return new Gson().toJson(this.source);
     }
 
     public float getStars() {
@@ -196,3 +193,41 @@ public class Bottle {
     }
 }
 
+class BottleList {
+    // TODO Class for XML output
+    private List<Bottle> bottles;
+
+    public BottleList() {
+        bottles = new ArrayList<>();
+    }
+
+    public void add(Bottle b) {
+        bottles.add(b);
+    }
+}
+
+class Source {
+    private int id;
+    private int volume;
+
+    public Source(int id, int volume) {
+        this.id = id;
+        this.volume = volume;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getVolume() {
+        return volume;
+    }
+
+    public void setVolume(int volume) {
+        this.volume = volume;
+    }
+}

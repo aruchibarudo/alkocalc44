@@ -28,7 +28,7 @@ public class addBottle extends AppCompatActivity {
     protected int iType;
     protected String[] alkotype;
 
-    private DateFormat sdf = new SimpleDateFormat("d.MM.yy", Locale.getDefault()); //"d.MM.yy", Locale.ENGLISH
+    private DateFormat sdf = new SimpleDateFormat("dd.MM.yy", Locale.getDefault()); //"d.MM.yy", Locale.ENGLISH
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -1,6 +1,9 @@
 package ru.yamalinform.alkocalc44;
 
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.app.SearchManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -264,7 +267,7 @@ public class MainMenu extends AppCompatActivity
                     @Override
                     public void onClick(View view) {
 
-                        if(mixArray.size() == 2) {
+                        if(mixArray != null && mixArray.size() == 2) {
                             Intent intent = new Intent(MainMenu.this, mixBottle.class);
                             for (int i = 0; i < mixArray.size(); i++) {
                                 if(mixArray.valueAt(i)) {
@@ -272,6 +275,7 @@ public class MainMenu extends AppCompatActivity
                                     intent.putExtra("id" + String.valueOf(i+1), Bottles.get(mixArray.keyAt(i)).getId());
                                 }
                             }
+                            intent.putExtra("action", R.id.btnMixOK);
                             startActivity(intent);
                         } else {
                             Toast.makeText(getApplicationContext(), "Минимум две бутылки", Toast.LENGTH_LONG).show();
@@ -365,18 +369,32 @@ public class MainMenu extends AppCompatActivity
         // TODO Добавление локейшена, Активити логина в алкосеть
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_mix) {
+            //Toast.makeText(getApplicationContext(), "Запсукаем мешалку", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(MainMenu.this, mixBottle.class);
+            intent.putExtra("action", R.id.nav_mix);
+            startActivity(intent);
+        } else if (id == R.id.nav_location) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_alkotype) {
 
         } else if (id == R.id.nav_manage) {
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_login) {
 
-        } else if (id == R.id.nav_send) {
-
+        } else if (id == R.id.nav_exit) {
+            final String EXPORT_FILE = "test.json";
+            ProgressDialog alert = new ProgressDialog(this);
+            alert.setTitle("Экспорт");
+            alert.setMessage("Экспортируем в " + EXPORT_FILE);
+            alert.setButton(Dialog.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+            alert.show();
+            FileSaver fs = new FileSaver(getApplicationContext(), EXPORT_FILE);
+            fs.writeJSON(Bottles);
+            alert.setMessage("Экспортировано в " + EXPORT_FILE);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

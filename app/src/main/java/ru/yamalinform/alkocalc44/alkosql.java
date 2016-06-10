@@ -11,6 +11,8 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import org.json.JSONException;
 
 import java.sql.Date;
@@ -35,6 +37,7 @@ public class alkosql extends SQLiteOpenHelper {
     private Context context;
     private ProgressDialog alert;
     private Context app;
+    private Gson gson = new Gson();
     //private SQLiteDatabase db;
 
     private static final String TABLE_DICT = "dict";
@@ -287,8 +290,8 @@ public class alkosql extends SQLiteOpenHelper {
         List<Bottle> bottles = this.searchBottles(db, null);
 
         for (Bottle bottle: bottles) {
-            try {
-                if(bottle.getSource().length() == 2) {
+            /*try {
+                if(bottle.getSource().size() == 2) {
                     String src1 = bottle.getSource().getJSONObject(0).getString("id");
                     int vol1 = bottle.getSource().getJSONObject(0).getInt("volume");
                     Log.d("_SQL convertSrc()", src1);
@@ -308,7 +311,7 @@ public class alkosql extends SQLiteOpenHelper {
             }catch (JSONException e) {
                 Log.e("_SQL convertSrc()", e.getMessage());
                 e.printStackTrace();
-            }
+            }*/
         }
 
     }
@@ -433,7 +436,7 @@ public class alkosql extends SQLiteOpenHelper {
         values.put(KEY_PEREGON, bottle.getPeregon());
         values.put(KEY_DATE, String.valueOf((int)Math.ceil((double)bottle.getDate().getTime()/1000)));
         values.put(KEY_TIMESTAMP, String.valueOf((int)Math.ceil((double)bottle.getTimeStamp().getTime()/1000)));
-        values.put(KEY_SOURCE, bottle.getSource().toString());
+        values.put(KEY_SOURCE, gson.toJson(bottle.getSource()));
         values.put(KEY_DESCR, bottle.getDescription());
 
         // 3. insert
@@ -691,7 +694,7 @@ public class alkosql extends SQLiteOpenHelper {
                 " left join reports r on b.id = r.bId " +
                 where +
                 " GROUP BY b.id" +
-                " ORDER BY " + order + " DESC";
+                " ORDER BY " + order + " DESC, b.id DESC";
         Log.d("_SQL", query);
         // 2. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
@@ -768,7 +771,7 @@ public class alkosql extends SQLiteOpenHelper {
         values.put(KEY_PEREGON, bottle.getPeregon());
         values.put(KEY_DATE, String.valueOf((int)Math.ceil((double)bottle.getDate().getTime()/1000)));
         values.put(KEY_TIMESTAMP, String.valueOf((int)Math.ceil((double)bottle.getTimeStamp().getTime()/1000)));
-        values.put(KEY_SOURCE, bottle.getSource().toString());
+        values.put(KEY_SOURCE, gson.toJson(bottle.getSource()));
         values.put(KEY_DESCR, bottle.getDescription());
 
         // 3. updating row
@@ -801,7 +804,7 @@ public class alkosql extends SQLiteOpenHelper {
         values.put(KEY_PEREGON, bottle.getPeregon());
         values.put(KEY_DATE, String.valueOf((int)Math.ceil((double)bottle.getDate().getTime()/1000)));
         values.put(KEY_TIMESTAMP, String.valueOf((int)Math.ceil((double)bottle.getTimeStamp().getTime()/1000)));
-        values.put(KEY_SOURCE, bottle.getSource().toString());
+        values.put(KEY_SOURCE, gson.toJson(bottle.getSource()));
         values.put(KEY_DESCR, bottle.getDescription());
 
         // 3. updating row
